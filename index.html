@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amour - Zero-Server Couple Suite</title>
+  <title>Lovo Birds - Zero-Server Couple Suite</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <style>
+    /* CSS Mirroring for natural webcam feel */
+    .mirror-video { transform: scaleX(-1); }
+
     /* Camera Filters */
     .filter-normal { filter: none; }
     .filter-vintage { filter: sepia(0.6) contrast(1.1) brightness(0.9); }
@@ -34,8 +37,8 @@
     <!-- HEADER -->
     <header class="p-3.5 bg-rose-500 text-white flex items-center justify-between shadow-md">
       <div class="flex items-center gap-2">
-        <i data-lucide="heart" class="w-5 h-5 fill-current animate-pulse"></i>
-        <h1 class="font-bold text-lg tracking-wide">Amour</h1>
+        <i data-lucide="bird" class="w-6 h-6 fill-current animate-bounce"></i>
+        <h1 class="font-bold text-xl tracking-wide font-serif">Lovo Birds</h1>
       </div>
       <div id="statusBadge" class="text-xs bg-rose-700/60 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
         <span class="w-2 h-2 rounded-full bg-slate-300"></span> Offline
@@ -45,13 +48,16 @@
     <!-- STEP 1: LOBBY -->
     <div id="lobbyView" class="p-6 flex-1 flex flex-col justify-center space-y-5">
       <div class="text-center space-y-1">
-        <h2 class="text-2xl font-bold text-slate-900">Couple Sanctuary</h2>
+        <div class="inline-flex p-3 bg-rose-100 text-rose-600 rounded-full mb-2">
+          <i data-lucide="bird" class="w-8 h-8"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900">Lovo Birds Sanctuary</h2>
         <p class="text-xs text-slate-500">Instant Peer-to-Peer Calls, Media & Chat</p>
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Your Name</label>
-        <input id="nicknameInput" type="text" value="Sweetheart" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400">
+        <input id="nicknameInput" type="text" value="Lovebird" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400">
       </div>
 
       <div class="space-y-3 bg-rose-50/50 p-4 rounded-xl border border-rose-100">
@@ -82,13 +88,16 @@
       </button>
     </div>
 
-    <!-- STEP 2: ACTIVE CHAT & CALL ROOM -->
+    <!-- STEP 2: CHAT VIEW -->
     <div id="chatView" class="flex-1 flex flex-col hidden relative">
-      <!-- SUB HEADER WITH CALL CONTROLS -->
+      <!-- SUB HEADER -->
       <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-        <div>
-          <div class="text-xs text-slate-500">Connected with</div>
-          <div id="partnerNameDisplay" class="text-sm font-bold text-slate-900">Waiting for partner...</div>
+        <div class="flex items-center gap-2">
+          <i data-lucide="bird" class="w-5 h-5 text-rose-500"></i>
+          <div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider">Connected</div>
+            <div id="partnerNameDisplay" class="text-sm font-bold text-slate-900">Waiting for partner...</div>
+          </div>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="startCall(false)" class="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 shadow-sm" title="Voice Call">
@@ -103,46 +112,17 @@
         </div>
       </div>
 
-      <!-- VIDEO CALL OVERLAY -->
-      <div id="videoCallOverlay" class="hidden relative bg-slate-900 h-64 flex items-center justify-center overflow-hidden">
-        <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover filter-normal"></video>
-        <video id="localVideo" autoplay playsinline muted class="absolute bottom-2 right-2 w-24 h-32 object-cover rounded-lg border-2 border-white shadow-lg filter-normal"></video>
-        
-        <!-- Filter Controls -->
-        <div class="absolute top-2 left-2 flex gap-1 bg-black/40 backdrop-blur-md p-1 rounded-lg">
-          <button onclick="applyFilter('filter-normal')" class="px-2 py-0.5 text-[10px] text-white bg-white/20 rounded">Normal</button>
-          <button onclick="applyFilter('filter-romantic')" class="px-2 py-0.5 text-[10px] text-white bg-rose-500/60 rounded">Love</button>
-          <button onclick="applyFilter('filter-vintage')" class="px-2 py-0.5 text-[10px] text-white bg-amber-500/60 rounded">Retro</button>
-          <button onclick="applyFilter('filter-bw')" class="px-2 py-0.5 text-[10px] text-white bg-slate-500/60 rounded">B&W</button>
-        </div>
-
-        <button onclick="endCall()" class="absolute bottom-2 left-2 p-2 bg-rose-600 text-white rounded-full">
-          <i data-lucide="phone-off" class="w-4 h-4"></i>
-        </button>
-      </div>
-
       <!-- MESSAGES STREAM -->
       <div id="messageStream" class="flex-1 p-4 overflow-y-auto space-y-3"></div>
 
-      <!-- LOVE EMOJI/STICKER QUICK BAR -->
+      <!-- EMOJI QUICK BAR -->
       <div class="px-3 py-1.5 bg-rose-50/60 border-t border-rose-100 flex items-center justify-around text-xl">
         <button onclick="sendEmoji('💖')" class="hover:scale-125 transition-transform">💖</button>
         <button onclick="sendEmoji('😘')" class="hover:scale-125 transition-transform">😘</button>
         <button onclick="sendEmoji('🌹')" class="hover:scale-125 transition-transform">🌹</button>
         <button onclick="sendEmoji('🥰')" class="hover:scale-125 transition-transform">🥰</button>
         <button onclick="sendEmoji('💍')" class="hover:scale-125 transition-transform">💍</button>
-        <button onclick="sendEmoji('👩‍❤️‍👨')" class="hover:scale-125 transition-transform">👩‍❤️‍👨</button>
-      </div>
-
-      <!-- CAMERA CAPTURE PREVIEW MODAL -->
-      <div id="cameraModal" class="hidden absolute inset-0 bg-black/80 z-40 flex flex-col items-center justify-center p-4">
-        <video id="captureVideo" autoplay playsinline class="w-full max-h-64 object-cover rounded-xl border-2 border-white mb-3"></video>
-        <div class="flex gap-3">
-          <button onclick="takeSnapAndSend()" class="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-1">
-            <i data-lucide="camera" class="w-4 h-4"></i> Snap & Send
-          </button>
-          <button onclick="closeCameraModal()" class="px-4 py-2 bg-slate-600 text-white rounded-xl text-xs font-bold">Cancel</button>
-        </div>
+        <button onclick="sendEmoji('🕊️')" class="hover:scale-125 transition-transform">🕊️</button>
       </div>
 
       <!-- INPUT BAR -->
@@ -164,6 +144,53 @@
       </div>
     </div>
 
+    <!-- FULLSCREEN LANDSCAPE VIDEO CALL OVERLAY -->
+    <div id="videoCallOverlay" class="hidden fixed inset-0 bg-black z-50 flex flex-col justify-between p-4">
+      <!-- Remote Video Stream -->
+      <video id="remoteVideo" autoplay playsinline class="absolute inset-0 w-full h-full object-cover filter-normal"></video>
+      
+      <!-- Local Video Stream (Mirrored) -->
+      <video id="localVideo" autoplay playsinline muted class="absolute bottom-20 right-4 w-32 h-44 object-cover rounded-2xl border-2 border-white shadow-2xl z-10 mirror-video filter-normal"></video>
+
+      <!-- Top Overlay Controls: Filters & Camera Switch -->
+      <div class="relative z-20 flex justify-between items-center w-full max-w-4xl mx-auto">
+        <div class="flex gap-1.5 bg-black/50 backdrop-blur-md p-1.5 rounded-full border border-white/20">
+          <button onclick="applyFilter('filter-normal')" class="px-2.5 py-1 text-xs text-white bg-white/20 rounded-full">Normal</button>
+          <button onclick="applyFilter('filter-romantic')" class="px-2.5 py-1 text-xs text-white bg-rose-500/80 rounded-full">Love</button>
+          <button onclick="applyFilter('filter-vintage')" class="px-2.5 py-1 text-xs text-white bg-amber-500/80 rounded-full">Retro</button>
+          <button onclick="applyFilter('filter-bw')" class="px-2.5 py-1 text-xs text-white bg-slate-500/80 rounded-full">B&W</button>
+        </div>
+
+        <button onclick="switchCallCamera()" class="p-2.5 bg-black/50 backdrop-blur-md text-white rounded-full border border-white/20 hover:bg-black/70">
+          <i data-lucide="switch-camera" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Bottom Overlay Controls: End Call -->
+      <div class="relative z-20 flex justify-center w-full pb-4">
+        <button onclick="endCall()" class="p-4 bg-rose-600 text-white rounded-full shadow-lg hover:bg-rose-700 transition-all scale-110">
+          <i data-lucide="phone-off" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- CAMERA CAPTURE PREVIEW MODAL -->
+    <div id="cameraModal" class="hidden fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4">
+      <div class="relative w-full max-w-sm">
+        <video id="captureVideo" autoplay playsinline class="w-full h-80 object-cover rounded-2xl border-2 border-white/30 mirror-video"></video>
+        <button onclick="switchSnapCamera()" class="absolute top-3 right-3 p-2 bg-black/60 text-white rounded-full backdrop-blur-md">
+          <i data-lucide="switch-camera" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex gap-4 mt-6">
+        <button onclick="takeSnapAndSend()" class="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md">
+          <i data-lucide="camera" class="w-4 h-4"></i> Snap & Send
+        </button>
+        <button onclick="closeCameraModal()" class="px-5 py-2.5 bg-slate-700 text-white rounded-xl text-xs font-bold">Cancel</button>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -171,8 +198,11 @@
     let conn = null;
     let currentCall = null;
     let localStream = null;
-    let myNickname = 'Sweetheart';
+    let snapStream = null;
+    let myNickname = 'Lovebird';
     let partnerNickname = 'Partner';
+    
+    let currentFacingMode = 'user'; // 'user' for front camera, 'environment' for back
 
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
@@ -209,12 +239,12 @@
     function initPeer(isHost) {
       const room = document.getElementById('roomCodeInput').value.trim();
       const pass = document.getElementById('passcodeInput').value.trim();
-      myNickname = document.getElementById('nicknameInput').value.trim() || 'Sweetheart';
+      myNickname = document.getElementById('nicknameInput').value.trim() || 'Lovebird';
 
       if (room.length !== 4 || pass.length !== 4) return alert('Both codes must be 4 digits!');
 
-      const hostId = `amour-${room}-${pass}-host`;
-      const joinerId = `amour-${room}-${pass}-joiner`;
+      const hostId = `lovo-${room}-${pass}-host`;
+      const joinerId = `lovo-${room}-${pass}-joiner`;
 
       const myId = isHost ? hostId : joinerId;
       const targetId = isHost ? joinerId : hostId;
@@ -241,7 +271,7 @@
 
       peer.on('call', async (call) => {
         if (confirm('Incoming Call! Accept?')) {
-          localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
           document.getElementById('videoCallOverlay').classList.remove('hidden');
           document.getElementById('localVideo').srcObject = localStream;
           call.answer(localStream);
@@ -342,7 +372,7 @@
     // CALLING SYSTEM
     async function startCall(video) {
       if (!conn) return alert('Connect to partner first!');
-      localStream = await navigator.mediaDevices.getUserMedia({ video, audio: true });
+      localStream = await navigator.mediaDevices.getUserMedia({ video: video ? { facingMode: currentFacingMode } : false, audio: true });
       document.getElementById('videoCallOverlay').classList.remove('hidden');
       document.getElementById('localVideo').srcObject = localStream;
 
@@ -352,6 +382,33 @@
       });
     }
 
+    async function switchCallCamera() {
+      if (!localStream) return;
+      currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+      
+      // Stop old video track
+      localStream.getVideoTracks().forEach(track => track.stop());
+      
+      const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
+      const newVideoTrack = newStream.getVideoTracks()[0];
+      
+      localStream.addTrack(newVideoTrack);
+      document.getElementById('localVideo').srcObject = localStream;
+
+      // Handle CSS mirror toggle for back camera
+      const localVidEl = document.getElementById('localVideo');
+      if (currentFacingMode === 'environment') {
+        localVidEl.classList.remove('mirror-video');
+      } else {
+        localVidEl.classList.add('mirror-video');
+      }
+
+      if (currentCall) {
+        const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+        if (sender) sender.replaceTrack(newVideoTrack);
+      }
+    }
+
     function endCall() {
       if (currentCall) currentCall.close();
       if (localStream) localStream.getTracks().forEach(t => t.stop());
@@ -359,51 +416,5 @@
     }
 
     function applyFilter(filterClass) {
-      document.getElementById('localVideo').className = `absolute bottom-2 right-2 w-24 h-32 object-cover rounded-lg border-2 border-white shadow-lg ${filterClass}`;
-      document.getElementById('remoteVideo').className = `w-full h-full object-cover ${filterClass}`;
-    }
-
-    // CAMERA SNAPSHOT SYSTEM
-    let modalStream = null;
-    async function openCameraModal() {
-      document.getElementById('cameraModal').classList.remove('hidden');
-      modalStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      document.getElementById('captureVideo').srcObject = modalStream;
-    }
-
-    function closeCameraModal() {
-      if (modalStream) modalStream.getTracks().forEach(t => t.stop());
-      document.getElementById('cameraModal').classList.add('hidden');
-    }
-
-    function takeSnapAndSend() {
-      const video = document.getElementById('captureVideo');
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-      const fileData = canvas.toDataURL('image/png');
-      
-      conn.send({ type: 'file', fileName: 'photo.png', fileData });
-      renderFileMessage('photo.png', fileData, 'self');
-      closeCameraModal();
-    }
-
-    function spawnFloatingHeart(emoji) {
-      const container = document.getElementById('heartContainer');
-      const heart = document.createElement('div');
-      heart.className = 'absolute text-3xl animate-float pointer-events-none';
-      heart.innerText = emoji;
-      heart.style.left = `${Math.random() * 80 + 10}%`;
-      heart.style.bottom = '10%';
-      container.appendChild(heart);
-      setTimeout(() => heart.remove(), 1500);
-    }
-
-    function leaveChat() {
-      window.location.hash = '';
-      window.location.reload();
-    }
-  </script>
-</body>
-</html>
+      document.getElementById('localVideo').className = `absolute bottom-20 right-4 w-32 h-44 object-cover rounded-2xl border-2 border-white shadow-2xl z-10 mirror-video ${filterClass}`;
+      document.getElementById('remoteVideo').className = `absolut
