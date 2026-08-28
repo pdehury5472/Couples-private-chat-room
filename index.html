@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lovo Birds - Zero-Server Couple Suite</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <style>
     .mirror-video { transform: scaleX(-1); }
     .filter-normal { filter: none; }
@@ -31,7 +29,7 @@
     <!-- HEADER -->
     <header class="p-3.5 bg-rose-500 text-white flex items-center justify-between shadow-md">
       <div class="flex items-center gap-2">
-        <i data-lucide="bird" class="w-6 h-6 fill-current"></i>
+        <span class="text-xl">🕊️</span>
         <h1 class="font-bold text-xl tracking-wide font-serif">Lovo Birds</h1>
       </div>
       <div id="statusBadge" class="text-xs bg-rose-700/60 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
@@ -42,8 +40,8 @@
     <!-- LOBBY VIEW -->
     <div id="lobbyView" class="p-6 flex-1 flex flex-col justify-center space-y-5">
       <div class="text-center space-y-1">
-        <div class="inline-flex p-3 bg-rose-100 text-rose-600 rounded-full mb-2">
-          <i data-lucide="bird" class="w-8 h-8"></i>
+        <div class="inline-flex p-3 bg-rose-100 text-rose-600 rounded-full mb-2 text-3xl">
+          🕊️
         </div>
         <h2 class="text-2xl font-bold text-slate-900">Lovo Birds Sanctuary</h2>
         <p class="text-xs text-slate-500">Instant Peer-to-Peer Calls, Media & Chat</p>
@@ -64,21 +62,21 @@
           <input id="passcodeInput" type="text" maxlength="4" placeholder="5678" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-400">
         </div>
         <button id="btnGenerate" type="button" class="text-xs text-rose-600 hover:underline flex items-center gap-1 font-medium mx-auto">
-          <i data-lucide="sparkles" class="w-3 h-3"></i> Generate Random Codes
+          ✨ Generate Random Codes
         </button>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <button id="btnCreateRoom" type="button" class="py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl text-xs shadow-sm flex items-center justify-center gap-1.5">
-          <i data-lucide="crown" class="w-4 h-4"></i> Create Room
+          👑 Create Room
         </button>
         <button id="btnJoinRoom" type="button" class="py-3 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl text-xs shadow-sm flex items-center justify-center gap-1.5">
-          <i data-lucide="log-in" class="w-4 h-4"></i> Join Room
+          🚪 Join Room
         </button>
       </div>
 
       <button id="btnCopyLink" type="button" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs flex items-center justify-center gap-1.5">
-        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Invite Link
+        📋 Copy Invite Link
       </button>
     </div>
 
@@ -86,22 +84,22 @@
     <div id="chatView" class="flex-1 flex flex-col hidden relative">
       <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <i data-lucide="bird" class="w-5 h-5 text-rose-500"></i>
+          <span class="text-lg">🕊️</span>
           <div>
             <div class="text-[10px] text-slate-400 uppercase tracking-wider">Connected</div>
             <div id="partnerNameDisplay" class="text-sm font-bold text-slate-900">Waiting for partner...</div>
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button id="btnVoiceCall" class="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 shadow-sm"><i data-lucide="phone" class="w-4 h-4"></i></button>
-          <button id="btnVideoCall" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 shadow-sm"><i data-lucide="video" class="w-4 h-4"></i></button>
-          <button id="btnLeave" class="p-2 text-slate-400 hover:text-rose-600"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+          <button id="btnVoiceCall" class="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 shadow-sm text-xs font-bold">📞 Call</button>
+          <button id="btnVideoCall" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 shadow-sm text-xs font-bold">📹 Video</button>
+          <button id="btnLeave" class="p-2 text-slate-400 hover:text-rose-600 text-xs font-bold">❌ Leave</button>
         </div>
       </div>
 
       <div id="messageStream" class="flex-1 p-4 overflow-y-auto space-y-3"></div>
 
-      <!-- EMOJI QUICK BAR -->
+      <!-- EMOJI BAR -->
       <div class="px-3 py-1.5 bg-rose-50/60 border-t border-rose-100 flex items-center justify-around text-xl">
         <button class="emoji-btn hover:scale-125 transition-transform" data-emoji="💖">💖</button>
         <button class="emoji-btn hover:scale-125 transition-transform" data-emoji="😘">😘</button>
@@ -113,13 +111,13 @@
 
       <!-- INPUT BAR -->
       <div class="p-3 border-t border-slate-200 flex items-center gap-2 bg-white">
-        <button id="btnOpenSnap" class="p-2 text-slate-500 hover:text-rose-500"><i data-lucide="camera" class="w-5 h-5"></i></button>
-        <label class="p-2 text-slate-500 hover:text-rose-500 cursor-pointer">
-          <i data-lucide="paperclip" class="w-5 h-5"></i>
+        <button id="btnOpenSnap" class="p-2 text-slate-500 hover:text-rose-500 text-lg">📷</button>
+        <label class="p-2 text-slate-500 hover:text-rose-500 cursor-pointer text-lg">
+          📎
           <input type="file" id="fileInput" class="hidden">
         </label>
         <input id="messageTextInput" type="text" placeholder="Type a message..." class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400">
-        <button id="btnSendText" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600"><i data-lucide="send" class="w-4 h-4"></i></button>
+        <button id="btnSendText" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 text-xs font-bold">Send</button>
       </div>
     </div>
 
@@ -136,14 +134,14 @@
           <button onclick="applyFilter('filter-bw')" class="px-2.5 py-1 text-xs text-white bg-slate-500/80 rounded-full">B&W</button>
         </div>
 
-        <button id="btnSwitchCallCam" class="p-2.5 bg-black/50 backdrop-blur-md text-white rounded-full border border-white/20 hover:bg-black/70">
-          <i data-lucide="switch-camera" class="w-5 h-5"></i>
+        <button id="btnSwitchCallCam" class="p-2.5 bg-black/50 backdrop-blur-md text-white rounded-full border border-white/20 hover:bg-black/70 text-xs font-bold">
+          🔄 Flip
         </button>
       </div>
 
       <div class="relative z-20 flex justify-center w-full pb-4">
-        <button id="btnEndCall" class="p-4 bg-rose-600 text-white rounded-full shadow-lg hover:bg-rose-700 transition-all scale-110">
-          <i data-lucide="phone-off" class="w-6 h-6"></i>
+        <button id="btnEndCall" class="p-4 bg-rose-600 text-white rounded-full shadow-lg hover:bg-rose-700 transition-all font-bold text-sm">
+          🚫 End Call
         </button>
       </div>
     </div>
@@ -152,13 +150,13 @@
     <div id="cameraModal" class="hidden fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4">
       <div class="relative w-full max-w-sm">
         <video id="captureVideo" autoplay playsinline class="w-full h-80 object-cover rounded-2xl border-2 border-white/30 mirror-video"></video>
-        <button id="btnSwitchSnapCam" class="absolute top-3 right-3 p-2 bg-black/60 text-white rounded-full backdrop-blur-md">
-          <i data-lucide="switch-camera" class="w-5 h-5"></i>
+        <button id="btnSwitchSnapCam" class="absolute top-3 right-3 p-2 bg-black/60 text-white rounded-full backdrop-blur-md text-xs font-bold">
+          🔄 Flip
         </button>
       </div>
       <div class="flex gap-4 mt-6">
         <button id="btnTakeSnap" class="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md">
-          <i data-lucide="camera" class="w-4 h-4"></i> Snap & Send
+          📷 Snap & Send
         </button>
         <button id="btnCloseSnap" class="px-5 py-2.5 bg-slate-700 text-white rounded-xl text-xs font-bold">Cancel</button>
       </div>
@@ -176,35 +174,39 @@
     let partnerNickname = 'Partner';
     let currentFacingMode = 'user';
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-
-      // EVENT LISTENERS
-      document.getElementById('btnGenerate').addEventListener('click', generateRandomCodes);
-      document.getElementById('btnCreateRoom').addEventListener('click', () => initPeer(true));
-      document.getElementById('btnJoinRoom').addEventListener('click', () => initPeer(false));
-      document.getElementById('btnCopyLink').addEventListener('click', copyInviteLink);
-      document.getElementById('btnSendText').addEventListener('click', sendTextMessage);
-      document.getElementById('messageTextInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendTextMessage(); });
+    window.onload = function() {
+      // Event bindings
+      document.getElementById('btnGenerate').onclick = generateRandomCodes;
+      document.getElementById('btnCreateRoom').onclick = function() { initPeer(true); };
+      document.getElementById('btnJoinRoom').onclick = function() { initPeer(false); };
+      document.getElementById('btnCopyLink').onclick = copyInviteLink;
+      document.getElementById('btnSendText').onclick = sendTextMessage;
       
-      document.getElementById('fileInput').addEventListener('change', (e) => sendFile(e.target));
-      document.getElementById('btnVoiceCall').addEventListener('click', () => startCall(false));
-      document.getElementById('btnVideoCall').addEventListener('click', () => startCall(true));
-      document.getElementById('btnEndCall').addEventListener('click', endCall);
-      document.getElementById('btnSwitchCallCam').addEventListener('click', switchCallCamera);
+      document.getElementById('messageTextInput').onkeydown = function(e) {
+        if (e.key === 'Enter') sendTextMessage();
+      };
       
-      document.getElementById('btnOpenSnap').addEventListener('click', openCameraModal);
-      document.getElementById('btnCloseSnap').addEventListener('click', closeCameraModal);
-      document.getElementById('btnSwitchSnapCam').addEventListener('click', switchSnapCamera);
-      document.getElementById('btnTakeSnap').addEventListener('click', takeSnapAndSend);
-      document.getElementById('btnLeave').addEventListener('click', leaveChat);
+      document.getElementById('fileInput').onchange = function(e) { sendFile(e.target); };
+      document.getElementById('btnVoiceCall').onclick = function() { startCall(false); };
+      document.getElementById('btnVideoCall').onclick = function() { startCall(true); };
+      document.getElementById('btnEndCall').onclick = endCall;
+      document.getElementById('btnSwitchCallCam').onclick = switchCallCamera;
+      
+      document.getElementById('btnOpenSnap').onclick = openCameraModal;
+      document.getElementById('btnCloseSnap').onclick = closeCameraModal;
+      document.getElementById('btnSwitchSnapCam').onclick = switchSnapCamera;
+      document.getElementById('btnTakeSnap').onclick = takeSnapAndSend;
+      document.getElementById('btnLeave').onclick = leaveChat;
 
-      document.querySelectorAll('.emoji-btn').forEach(btn => {
-        btn.addEventListener('click', () => sendEmoji(btn.getAttribute('data-emoji')));
-      });
+      let emojiBtns = document.querySelectorAll('.emoji-btn');
+      for(let i = 0; i < emojiBtns.length; i++) {
+        emojiBtns[i].onclick = function() {
+          sendEmoji(this.getAttribute('data-emoji'));
+        };
+      }
 
       parseUrlHash();
-    });
+    };
 
     function generateRandomCodes() {
       document.getElementById('roomCodeInput').value = Math.floor(1000 + Math.random() * 9000);
@@ -228,9 +230,14 @@
       const room = document.getElementById('roomCodeInput').value.trim();
       const pass = document.getElementById('passcodeInput').value.trim();
       if (room.length !== 4 || pass.length !== 4) return alert('Enter valid 4-digit codes!');
-      const url = `${window.location.origin}${window.location.pathname}#room=${room}&pass=${pass}`;
-      navigator.clipboard.writeText(url);
-      alert('Invite link copied!');
+      const url = window.location.origin + window.location.pathname + '#room=' + room + '&pass=' + pass;
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url);
+        alert('Invite link copied!');
+      } else {
+        prompt('Copy this link:', url);
+      }
     }
 
     function initPeer(isHost) {
@@ -240,8 +247,8 @@
 
       if (room.length !== 4 || pass.length !== 4) return alert('Both codes must be 4 digits!');
 
-      const hostId = `lovo-${room}-${pass}-host`;
-      const joinerId = `lovo-${room}-${pass}-joiner`;
+      const hostId = 'lovo-' + room + '-' + pass + '-host';
+      const joinerId = 'lovo-' + room + '-' + pass + '-joiner';
 
       const myId = isHost ? hostId : joinerId;
       const targetId = isHost ? joinerId : hostId;
@@ -250,44 +257,64 @@
       document.getElementById('chatView').classList.remove('hidden');
       updateStatus('Connecting...', 'bg-amber-500');
 
+      if (typeof Peer === 'undefined') {
+        alert('PeerJS library failed to load. Check your internet connection or ad-blocker.');
+        return;
+      }
+
+      // Explicit STUN configuration to bypass symmetric NAT firewalls
       peer = new Peer(myId, {
-        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
+        config: { 
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' }, 
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' }
+          ] 
+        }
       });
 
-      peer.on('open', () => {
+      peer.on('open', function() {
         if (!isHost) {
           conn = peer.connect(targetId);
           bindConnection();
         }
       });
 
-      peer.on('connection', (incoming) => {
+      peer.on('connection', function(incoming) {
         conn = incoming;
         bindConnection();
       });
 
-      peer.on('call', async (call) => {
+      peer.on('error', function(err) {
+        alert('Connection error: ' + err.type);
+        updateStatus('Error', 'bg-rose-700');
+      });
+
+      peer.on('call', async function(call) {
         if (confirm('Incoming Call! Accept?')) {
-          localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
-          document.getElementById('videoCallOverlay').classList.remove('hidden');
-          document.getElementById('localVideo').srcObject = localStream;
-          call.answer(localStream);
-          currentCall = call;
-          call.on('stream', (remoteStream) => {
-            document.getElementById('remoteVideo').srcObject = remoteStream;
-          });
+          try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
+            document.getElementById('videoCallOverlay').classList.remove('hidden');
+            document.getElementById('localVideo').srcObject = localStream;
+            call.answer(localStream);
+            currentCall = call;
+            call.on('stream', function(remoteStream) {
+              document.getElementById('remoteVideo').srcObject = remoteStream;
+            });
+          } catch(e) {
+            alert('Could not access camera/microphone');
+          }
         }
       });
     }
 
     function bindConnection() {
-      conn.on('open', () => {
+      conn.on('open', function() {
         updateStatus('Connected', 'bg-emerald-500');
         conn.send({ type: 'handshake', nickname: myNickname });
-        if (typeof confetti !== 'undefined') confetti({ particleCount: 40, spread: 50 });
       });
 
-      conn.on('data', (data) => {
+      conn.on('data', function(data) {
         if (data.type === 'handshake') {
           partnerNickname = data.nickname;
           document.getElementById('partnerNameDisplay').innerText = partnerNickname;
@@ -300,12 +327,16 @@
           renderFileMessage(data.fileName, data.fileData, 'partner');
         }
       });
+
+      conn.on('close', function() {
+        updateStatus('Disconnected', 'bg-rose-600');
+      });
     }
 
     function updateStatus(text, bgClass) {
       const badge = document.getElementById('statusBadge');
-      badge.className = `text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5 ${bgClass} text-white`;
-      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> ${text}`;
+      badge.className = 'text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5 ' + bgClass + ' text-white';
+      badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> ' + text;
     }
 
     function sendTextMessage() {
@@ -313,26 +344,23 @@
       const text = input.value.trim();
       if (!text || !conn) return;
       renderMessage(text, 'self');
-      conn.send({ type: 'text', text });
+      conn.send({ type: 'text', text: text });
       input.value = '';
     }
 
     function sendEmoji(emoji) {
       if (!conn) return;
       renderMessage(emoji, 'self', true);
-      conn.send({ type: 'emoji', emoji });
+      conn.send({ type: 'emoji', emoji: emoji });
       spawnFloatingHeart(emoji);
     }
 
-    function renderMessage(content, sender, isLarge = false) {
+    function renderMessage(content, sender, isLarge) {
       const stream = document.getElementById('messageStream');
       const isSelf = sender === 'self';
       const div = document.createElement('div');
-      div.className = `flex ${isSelf ? 'justify-end' : 'justify-start'}`;
-      div.innerHTML = `
-        <div class="max-w-[75%] px-3.5 py-2 rounded-2xl ${isLarge ? 'text-3xl bg-transparent' : isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800'}">
-          ${content}
-        </div>`;
+      div.className = 'flex ' + (isSelf ? 'justify-end' : 'justify-start');
+      div.innerHTML = '<div class="max-w-[75%] px-3.5 py-2 rounded-2xl ' + (isLarge ? 'text-3xl bg-transparent' : isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800') + '">' + content + '</div>';
       stream.appendChild(div);
       stream.scrollTop = stream.scrollHeight;
     }
@@ -341,9 +369,9 @@
       const file = input.files[0];
       if (!file || !conn) return;
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = function(e) {
         const fileData = e.target.result;
-        conn.send({ type: 'file', fileName: file.name, fileData });
+        conn.send({ type: 'file', fileName: file.name, fileData: fileData });
         renderFileMessage(file.name, fileData, 'self');
       };
       reader.readAsDataURL(file);
@@ -354,34 +382,37 @@
       const isSelf = sender === 'self';
       const isImage = fileData.startsWith('data:image');
       const div = document.createElement('div');
-      div.className = `flex ${isSelf ? 'justify-end' : 'justify-start'}`;
+      div.className = 'flex ' + (isSelf ? 'justify-end' : 'justify-start');
       
       let content = isImage 
-        ? `<img src="${fileData}" class="max-w-xs rounded-lg border border-slate-200">`
-        : `<a href="${fileData}" download="${fileName}" class="underline text-xs flex items-center gap-1"><i data-lucide="file"></i> ${fileName}</a>`;
+        ? '<img src="' + fileData + '" class="max-w-xs rounded-lg border border-slate-200">'
+        : '<a href="' + fileData + '" download="' + fileName + '" class="underline text-xs flex items-center gap-1">📁 ' + fileName + '</a>';
 
-      div.innerHTML = `<div class="max-w-[75%] p-2 rounded-2xl ${isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800'}">${content}</div>`;
+      div.innerHTML = '<div class="max-w-[75%] p-2 rounded-2xl ' + (isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800') + '">' + content + '</div>';
       stream.appendChild(div);
       stream.scrollTop = stream.scrollHeight;
-      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     async function startCall(video) {
       if (!conn) return alert('Connect to partner first!');
-      localStream = await navigator.mediaDevices.getUserMedia({ video: video ? { facingMode: currentFacingMode } : false, audio: true });
-      document.getElementById('videoCallOverlay').classList.remove('hidden');
-      document.getElementById('localVideo').srcObject = localStream;
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: video ? { facingMode: currentFacingMode } : false, audio: true });
+        document.getElementById('videoCallOverlay').classList.remove('hidden');
+        document.getElementById('localVideo').srcObject = localStream;
 
-      currentCall = peer.call(conn.peer, localStream);
-      currentCall.on('stream', (remoteStream) => {
-        document.getElementById('remoteVideo').srcObject = remoteStream;
-      });
+        currentCall = peer.call(conn.peer, localStream);
+        currentCall.on('stream', function(remoteStream) {
+          document.getElementById('remoteVideo').srcObject = remoteStream;
+        });
+      } catch(e) {
+        alert('Camera or Microphone access denied.');
+      }
     }
 
     async function switchCallCamera() {
       if (!localStream) return;
       currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-      localStream.getVideoTracks().forEach(track => track.stop());
+      localStream.getVideoTracks().forEach(function(track) { track.stop(); });
       
       const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
       const newVideoTrack = newStream.getVideoTracks()[0];
@@ -391,4 +422,4 @@
 
       const localVidEl = document.getElementById('localVideo');
       if (currentFacingMode === 'environment') localVidEl.classList.remove('mirror-video');
-      else local
+      else localVidEl.c
