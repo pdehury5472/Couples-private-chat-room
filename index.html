@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sweetheart Chat (Zero Server)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body class="bg-pink-50 text-slate-800 min-h-screen flex flex-col font-sans select-none">
+
+  <header class="p-4 border-b border-pink-200 bg-pink-100/80 backdrop-blur flex justify-between items-center sticky top-0 z-10">
+    <div class="flex items-center space-x-2">
+      <span class="text-2xl">💖</span>
+      <h1 class="text-xl font-bold tracking-wide text-pink-700">Couple Connection</h1>
+    </div>
+    <div id="statusIndicator" class="flex items-center space-x-2 bg-white/60 px-3 py-1 rounded-full border border-pink-200">
+      <span class="w-2.5 h-2.5 rounded-full bg-pink-400 inline-block"></span>
+      <span id="statusText" class="text-xs font-semibold text-pink-600">Disconnected</span>
+    </div>
+  </header>
+
+  <main class="flex-1 flex flex-col max-w-lg w-full mx-auto p-4">
+
+    <div id="setupScreen" class="flex-1 flex flex-col justify-center space-y-6">
+      
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl font-bold text-pink-800">Private Space for Two</h2>
+        <p class="text-pink-600/80 text-sm">Direct, end-to-end device link. No data ever touches a server.</p>
+      </div>
+
+      <div id="actionButtons" class="flex flex-col gap-3">
+        <button id="btnCreateOffer" onclick="startHost()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3.5 px-4 rounded-2xl shadow-md shadow-pink-200 transition">
+          Partner A: Generate Link QR
+        </button>
+        <button id="btnScan" onclick="openScanner()" class="w-full bg-white hover:bg-pink-100 text-pink-600 font-semibold py-3.5 px-4 rounded-2xl border-2 border-pink-300 transition">
+          Partner B: Scan Partner's Code
+        </button>
+      </div>
+
+      <div id="qrDisplay" class="hidden flex flex-col items-center space-y-4 bg-white p-6 rounded-3xl border border-pink-200 shadow-sm">
+        <h3 id="qrTitle" class="font-bold text-pink-700"></h3>
+        <div id="qrcode" class="p-3 bg-pink-50 rounded-2xl border border-pink-100"></div>
+        <p id="qrInstruction" class="text-xs text-pink-500 text-center max-w-xs"></p>
+        
+        <button id="btnScanAnswer" onclick="openScanner()" class="hidden text-sm bg-pink-500 hover:bg-pink-600 text-white font-medium py-2.5 px-5 rounded-xl shadow-sm">
+          Scan Partner's Reply QR
+        </button>
+      </div>
+
+      <div id="scannerArea" class="hidden bg-white p-4 rounded-3xl border border-pink-200 shadow-lg">
+        <div id="reader" class="w-full overflow-hidden rounded-2xl"></div>
+        <button onclick="closeScanner()" class="w-full mt-3 bg-pink-100 hover:bg-pink-200 text-pink-700 font-medium py-2 rounded-xl text-sm">
+          Cancel
+        </button>
+      </div>
+
+    </div>
+
+    <div id="chatScreen" class="hidden flex-1 flex flex-col h-full bg-white rounded-3xl border border-pink-200 shadow-sm overflow-hidden">
+      
+      <div id="messageBox" class="flex-1 p-4 overflow-y-auto space-y-3 max-h-[68vh] bg-pink-50/40">
+        <div class="text-center my-2">
+          <span class="text-[11px] bg-pink-100 text-pink-600 font-medium px-3 py-1 rounded-full border border-pink-200">
+            🔒 Linked Directly
+          </span>
+        </div>
+      </div>
+
+      <div class="p-3 bg-white border-t border-pink-100 flex space-x-2 items-center">
+        <input type="text" id="msgInput" placeholder="Send some love..." 
+               class="flex-1 bg-pink-50 border border-pink-200 rounded-2xl px-4 py-2.5 text-slate-700 placeholder-pink-300 focus:outline-none focus:border-pink-400 text-sm"
+               onkeydown="if(event.key === 'Enter') sendMessage()">
+        <button onclick="sendMessage()" class="bg-pink-500 hover:bg-pink-600 text-white font-medium px-5 py-2.5 rounded-2xl transition shadow-md shadow-pink-200 text-sm">
+          Send 💕
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    let peerConnection;
+    let dataChannel;
+    let html5QrcodeScanner;
+
+    const rtcConfig = {
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    };
+
+    function createPeerConnection() {
+      peerConnection = new RTCPeerConnection(rtcConfig);
+
+      peerConnection.onicecandidate = (event) => {
+        if (!event.candidate) {
+          const localSdp = JSON.stringify(peerConnection.localDescription);
+          showQRCode(localSdp);
+        }
+      };
+
+      peerConnection.ondatachannel = (event) => {
+        dataChannel = event.channel;
+        setupDataChannelEvents();
+      };
+    }
+
+    async function startHost() {
+      createPeerConnection();
+      dataChannel = peerConnection.createDataChannel("chat");
+      setupDataChannelEvents();
+
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+
+      document.getElementById("qrTitle").innerText = "Show this code to Partner B";
+      document.getElementById("qrInstruction").innerText = "Generating private encryption keys...";
+      document.getElementById("qrDisplay").classList.remove("hidden");
+    }
+
+    async function handleSignalingData(dataString) {
+      try {
+        const signal = JSON.parse(dataString);
+
+        if (!peerConnection) {
+          createPeerConnection();
+        }
+
+        if (signal.type === "offer") {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+
+          document.getElementById("qrTitle").innerText = "Show this reply to Partner A";
+          document.getElementById("qrInstruction").innerText = "Partner A must scan this QR to finalize setup.";
+          document.getElementById("qrDisplay").classList.remove("hidden");
+
+        } else if (signal.type === "answer") {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+          document.getElementById("qrDisplay").classList.add("hidden");
+        }
+      } catch (err) {
+        alert("Invalid connection QR code scanned.");
+      }
+    }
+
+    function showQRCode(text) {
+      const qrDiv = document.getElementById("qrcode");
+      qrDiv.innerHTML = "";
+      new QRCode(qrDiv, {
+        text: text,
+        width: 200,
+        height: 200,
+        colorDark : "#db2777",
+        colorLight : "#ffffff",
+        correctLevel: QRCode.CorrectLevel.L
+      });
+
+      if (peerConnection.localDescription.type === "offer") {
+        document.getElementById("btnScanAnswer").classList.remove("hidden");
+      }
+    }
+
+    function openScanner() {
+      document.getElementById("scannerArea").classList.remove("hidden");
+      html5QrcodeScanner = new Html5Qrcode("reader");
+
+      html5QrcodeScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+          closeScanner();
+          handleSignalingData(decodedText);
+        },
+        () => {}
+      ).catch(err => alert("Camera permission error: " + err));
+    }
+
+    function closeScanner() {
+      if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+          document.getElementById("scannerArea").classList.add("hidden");
+        });
+      }
+    }
+
+    function setupDataChannelEvents() {
+      dataChannel.onopen = () => {
+        updateConnectionStatus(true);
+        document.getElementById("setupScreen").classList.add("hidden");
+        document.getElementById("chatScreen").classList.remove("hidden");
+      };
+
+      dataChannel.onclose = () => {
+        updateConnectionStatus(false);
+      };
+
+      dataChannel.onmessage = (event) => {
+        appendMessage(event.data, "incoming");
+      };
+    }
+
+    function updateConnectionStatus(isConnected) {
+      const indicator = document.getElementById("statusIndicator");
+      if (isConnected) {
+        indicator.innerHTML = `
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+          <span class="text-xs font-semibold text-emerald-600">Connected 💕</span>
+        `;
+      } else {
+        indicator.innerHTML = `
+          <span class="w-2.5 h-2.5 rounded-full bg-pink-400 inline-block"></span>
+          <span class="text-xs font-semibold text-pink-600">Disconnected</span>
+        `;
+      }
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("msgInput");
+      const text = input.value.trim();
+      if (text && dataChannel && dataChannel.readyState === "open") {
+        dataChannel.send(text);
+        appendMessage(text, "outgoing");
+        input.value = "";
+      }
+    }
+
+    function appendMessage(text, direction) {
+      const box = document.getElementById("messageBox");
+      const msgDiv = document.createElement("div");
+      
+      if (direction === "outgoing") {
+        msgDiv.className = "flex justify-end";
+        msgDiv.innerHTML = `<div class="bg-pink-500 text-white px-4 py-2.5 rounded-2xl rounded-tr-none max-w-xs sm:max-w-md text-sm shadow-sm">${escapeHtml(text)}</div>`;
+      } else {
+        msgDiv.className = "flex justify-start";
+        msgDiv.innerHTML = `<div class="bg-white border border-pink-200 text-slate-700 px-4 py-2.5 rounded-2xl rounded-tl-none max-w-xs sm:max-w-md text-sm shadow-sm">${escapeHtml(text)}</div>`;
+      }
+
+      box.appendChild(msgDiv);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+  </script>
+</body>
+</html>
