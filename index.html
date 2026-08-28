@@ -1,1340 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>PrivateRoom - Zero Server Chat</title>
-
-<style>
-:root {
-    --accent: #ff4f91;
-    --accent2: #ff78aa;
-    --soft: #fff0f6;
-    --ink: #18212f;
-    --muted: #687386;
-    --line: #e9edf3;
-    --card: #ffffff;
-    --bg: #f8fafc;
-    --success: #18a66a;
-    --danger: #e5484d;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family:
-        Inter,
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-
-    background: white;
-    color: var(--ink);
-}
-
-button,
-input,
-textarea {
-    font: inherit;
-}
-
-button {
-    cursor: pointer;
-}
-
-/* =========================
-   MAIN APP
-========================= */
-
-.app {
-    min-height: 100vh;
-    background:
-        linear-gradient(
-            180deg,
-            #ffffff 0%,
-            #f9fbfd 100%
-        );
-}
-
-/* =========================
-   HEADER
-========================= */
-
-.topbar {
-    height: 68px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 20px;
-
-    background: rgba(255,255,255,.95);
-
-    border-bottom: 1px solid var(--line);
-
-    position: sticky;
-    top: 0;
-
-    z-index: 10;
-
-    backdrop-filter: blur(15px);
-}
-
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    font-weight: 800;
-}
-
-.logo {
-    width: 40px;
-    height: 40px;
-
-    border-radius: 13px;
-
-    background: var(--soft);
-
-    color: var(--accent);
-
-    display: grid;
-    place-items: center;
-
-    font-size: 22px;
-}
-
-.brand-title {
-    font-size: 17px;
-}
-
-.brand-subtitle {
-    display: block;
-
-    font-size: 11px;
-
-    color: var(--muted);
-
-    font-weight: 500;
-}
-
-.header-actions {
-    display: flex;
-    gap: 8px;
-}
-
-/* =========================
-   BUTTONS
-========================= */
-
-.btn {
-    border: 1px solid var(--line);
-
-    background: white;
-
-    color: var(--ink);
-
-    border-radius: 12px;
-
-    padding: 10px 14px;
-
-    font-weight: 700;
-
-    transition: .2s;
-}
-
-.btn:hover {
-    transform: translateY(-1px);
-
-    border-color: #cfd6e1;
-}
-
-.btn-primary {
-    background: var(--accent);
-
-    color: white;
-
-    border-color: var(--accent);
-}
-
-.btn-danger {
-    background: var(--danger);
-
-    color: white;
-
-    border-color: var(--danger);
-}
-
-/* =========================
-   CONTAINER
-========================= */
-
-.container {
-    max-width: 1200px;
-
-    margin: auto;
-
-    padding: 28px 18px;
-}
-
-/* =========================
-   HERO
-========================= */
-
-.hero {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: flex-end;
-
-    gap: 20px;
-
-    margin-bottom: 20px;
-}
-
-.hero h1 {
-    margin: 0 0 8px;
-
-    font-size: clamp(
-        30px,
-        5vw,
-        48px
-    );
-
-    letter-spacing: -1.5px;
-}
-
-.hero p {
-    margin: 0;
-
-    max-width: 700px;
-
-    color: var(--muted);
-
-    line-height: 1.6;
-}
-
-/* =========================
-   GRID
-========================= */
-
-.layout {
-    display: grid;
-
-    grid-template-columns:
-        320px
-        1fr;
-
-    gap: 18px;
-}
-
-/* =========================
-   CARD
-========================= */
-
-.card {
-    background: var(--card);
-
-    border: 1px solid var(--line);
-
-    border-radius: 20px;
-
-    padding: 17px;
-
-    box-shadow:
-        0 10px 35px
-        rgba(20,30,50,.06);
-}
-
-.card-title {
-    margin: 2px 0 13px;
-
-    font-size: 15px;
-}
-
-/* =========================
-   ROOM
-========================= */
-
-.room-box {
-    padding: 15px;
-
-    background: var(--soft);
-
-    border-radius: 15px;
-
-    margin-bottom: 12px;
-}
-
-.room-label {
-    color: var(--muted);
-
-    font-size: 11px;
-}
-
-.room-code {
-    font-size: 22px;
-
-    letter-spacing: 3px;
-
-    font-weight: 800;
-
-    margin-top: 3px;
-}
-
-.input-row {
-    display: flex;
-
-    gap: 8px;
-
-    margin: 10px 0;
-}
-
-.input {
-    width: 100%;
-
-    border: 1px solid var(--line);
-
-    border-radius: 12px;
-
-    padding: 11px 12px;
-
-    outline: none;
-
-    background: white;
-}
-
-.input:focus {
-    border-color: var(--accent);
-}
-
-/* =========================
-   STATUS
-========================= */
-
-.status {
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-
-    border-radius: 50%;
-
-    background: #bbb;
-}
-
-.status-dot.connected {
-    background: var(--success);
-}
-
-/* =========================
-   THEME
-========================= */
-
-.theme-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4,1fr);
-
-    gap: 8px;
-}
-
-.theme {
-    height: 38px;
-
-    border-radius: 11px;
-
-    border: 2px solid transparent;
-}
-
-.theme.active {
-    border-color: var(--ink);
-}
-
-.theme-pink {
-    background: #ff4f91;
-}
-
-.theme-white {
-    background: white;
-
-    border: 1px solid #ddd;
-}
-
-.theme-green {
-    background: #18a66a;
-}
-
-.theme-blue {
-    background: #28a9e8;
-}
-
-/* =========================
-   PRIVACY
-========================= */
-
-.privacy {
-    color: var(--success);
-
-    font-weight: 800;
-
-    font-size: 13px;
-}
-
-.small-text {
-    font-size: 11px;
-
-    color: var(--muted);
-
-    line-height: 1.55;
-}
-
-/* =========================
-   CHAT
-========================= */
-
-.chat {
-    height: calc(100vh - 170px);
-
-    min-height: 520px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    overflow: hidden;
-}
-
-.chat-header {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    border-bottom: 1px solid var(--line);
-
-    padding-bottom: 13px;
-}
-
-.call-buttons {
-    display: flex;
-
-    gap: 7px;
-}
-
-.messages {
-    flex: 1;
-
-    overflow-y: auto;
-
-    padding: 17px 3px;
-}
-
-.message {
-    max-width: 75%;
-
-    margin: 9px 0;
-
-    padding: 10px 13px;
-
-    border-radius: 16px;
-
-    background: #f2f5f8;
-
-    line-height: 1.45;
-
-    word-break: break-word;
-}
-
-.message.me {
-    margin-left: auto;
-
-    background: var(--soft);
-}
-
-.message-meta {
-    font-size: 10px;
-
-    color: var(--muted);
-
-    margin-top: 4px;
-}
-
-.composer {
-    display: flex;
-
-    gap: 8px;
-
-    border-top: 1px solid var(--line);
-
-    padding-top: 12px;
-}
-
-.composer input {
-    flex: 1;
-
-    border: 1px solid var(--line);
-
-    border-radius: 13px;
-
-    padding: 12px;
-
-    outline: none;
-}
-
-/* =========================
-   MODAL
-========================= */
-
-.modal {
-    position: fixed;
-
-    inset: 0;
-
-    background:
-        rgba(10,15,25,.48);
-
-    display: none;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 18px;
-
-    z-index: 100;
-}
-
-.modal.show {
-    display: flex;
-}
-
-.modal-content {
-    width: 100%;
-
-    max-width: 560px;
-
-    background: white;
-
-    border-radius: 20px;
-
-    padding: 20px;
-
-    box-shadow:
-        0 25px 80px
-        rgba(0,0,0,.25);
-}
-
-.modal-content h2 {
-    margin-top: 0;
-}
-
-.signal-box {
-    width: 100%;
-
-    min-height: 150px;
-
-    margin-top: 12px;
-
-    border: 1px solid var(--line);
-
-    border-radius: 12px;
-
-    padding: 11px;
-
-    resize: vertical;
-}
-
-/* =========================
-   VIDEO
-========================= */
-
-.call-screen {
-    position: fixed;
-
-    inset: 0;
-
-    background: #101318;
-
-    display: none;
-
-    z-index: 200;
-
-    padding: 14px;
-}
-
-.call-screen.show {
-    display: block;
-}
-
-.video-area {
-    height: 100%;
-
-    position: relative;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-}
-
-.remote-video {
-    width: 100%;
-
-    height: 100%;
-
-    object-fit: cover;
-
-    background: #050609;
-
-    border-radius: 18px;
-}
-
-.local-video {
-    position: absolute;
-
-    right: 20px;
-
-    bottom: 90px;
-
-    width: 220px;
-
-    height: 150px;
-
-    object-fit: cover;
-
-    background: #111;
-
-    border-radius: 15px;
-
-    border: 2px solid white;
-}
-
-.call-controls {
-    position: absolute;
-
-    bottom: 20px;
-
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    display: flex;
-
-    gap: 10px;
-}
-
-.call-control {
-    width: 50px;
-
-    height: 50px;
-
-    border-radius: 50%;
-
-    border: none;
-
-    background: white;
-
-    font-size: 18px;
-}
-
-.call-end {
-    background: var(--danger);
-
-    color: white;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width:800px) {
-
-    .layout {
-        grid-template-columns: 1fr;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Amour - Zero-Server Couple E2EE Chat</title>
+  <meta name="description" content="Zero-server encrypted peer-to-peer chat, voice call, and video call for couples using WebRTC and AES-256-GCM.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          }
+        }
+      }
     }
+  </script>
 
-    .hero {
-        flex-direction: column;
-
-        align-items: flex-start;
+  <style>
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 0.9; }
+      50% { transform: translateY(-40vh) scale(1.3) rotate(-15deg); opacity: 1; }
+      100% { transform: translateY(-85vh) scale(0.6) rotate(15deg); opacity: 0; }
     }
-
-    .chat {
-        height: 650px;
-
-        min-height: 0;
+    .animate-float-up {
+      animation: floatUp 2.4s ease-out forwards;
     }
-
-    .local-video {
-        width: 135px;
-
-        height: 95px;
-
-        right: 12px;
-
-        bottom: 85px;
-    }
-
-    .call-buttons .btn {
-        padding: 8px;
-    }
-
-    .header-actions .btn:first-child {
-        display: none;
-    }
-
-    .message {
-        max-width: 85%;
-    }
-}
-</style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
+<body class="bg-white text-slate-800 antialiased selection:bg-rose-100 selection:text-rose-900 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
-<body>
+  <!-- Floating Heart Particles Container -->
+  <div id="heartParticlesContainer" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
 
-<div class="app">
-
-<!-- HEADER -->
-
-<header class="topbar">
-
-    <div class="brand">
-
-        <div class="logo">
-            ↔
-        </div>
-
-        <div>
-            <div class="brand-title">
-                PrivateRoom
+  <div id="appRoot" class="flex-1 flex flex-col min-h-screen">
+    
+    <!-- ============================================== -->
+    <!-- VIEW 1: LOBBY SCREEN (Create / Join Room) -->
+    <!-- ============================================== -->
+    <div id="lobbyScreen" class="min-h-screen bg-white flex flex-col justify-between">
+      <!-- Lobby Header -->
+      <header class="border-b border-slate-100 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div id="lobbyLogo" class="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-100 text-rose-600 shadow-xs">
+            <i data-lucide="heart" class="w-4 h-4 fill-current animate-pulse"></i>
+          </div>
+          <div>
+            <div class="text-sm font-bold tracking-tight text-slate-900 flex items-center gap-1.5 font-display">
+              <span>Amour</span>
+              <span class="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Zero-Server E2EE
+              </span>
             </div>
-
-            <span class="brand-subtitle">
-                Zero Server • Peer-to-Peer
-            </span>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Private WebRTC space for two</p>
+          </div>
         </div>
 
-    </div>
+        <!-- Theme Picker Buttons -->
+        <div class="flex items-center gap-1 bg-slate-50 p-1 rounded-full border border-slate-200/70">
+          <button onclick="setTheme('pink')" class="theme-btn px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer bg-rose-100 text-rose-700 font-semibold scale-105" data-theme="pink">
+            <span>🌸</span><span class="hidden md:inline">Pink</span>
+          </button>
+          <button onclick="setTheme('white')" class="theme-btn px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900" data-theme="white">
+            <span>✨</span><span class="hidden md:inline">White</span>
+          </button>
+          <button onclick="setTheme('green')" class="theme-btn px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900" data-theme="green">
+            <span>🌿</span><span class="hidden md:inline">Green</span>
+          </button>
+          <button onclick="setTheme('sky-blue')" class="theme-btn px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900" data-theme="sky-blue">
+            <span>🌊</span><span class="hidden md:inline">Sky Blue</span>
+          </button>
+        </div>
+      </header>
 
-    <div class="header-actions">
-
-        <button
-            class="btn"
-            onclick="openTheme()">
-
-            Theme
-
-        </button>
-
-        <button
-            class="btn btn-primary"
-            onclick="newRoom()">
-
-            + New Room
-
-        </button>
-
-    </div>
-
-</header>
-
-
-<!-- MAIN -->
-
-<main class="container">
-
-    <!-- HERO -->
-
-    <section class="hero">
-
-        <div>
-
-            <h1>
-                Private room for two.
-            </h1>
-
-            <p>
-                Chat, voice call and video call directly
-                between browsers using WebRTC.
-                No account and no message database.
-            </p>
-
+      <!-- Lobby Main Hero & Form -->
+      <main class="max-w-4xl mx-auto px-4 py-6 sm:py-10 w-full flex-1">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-3">
+            <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>100% Peer-to-Peer • No Database • Zero Logs</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight font-display">
+            Zero-Server Couple Sanctuary
+          </h1>
+          <p class="text-sm sm:text-base text-slate-500 max-w-lg mx-auto mt-2">
+            Encrypted voice calls, HD video calls, and instant peer-to-peer messaging. Your moments never touch a server database.
+          </p>
         </div>
 
-        <div class="status">
-
-            <span
-                class="status-dot connected">
-            </span>
-
-            Local-first privacy
-
+        <!-- Mode Toggle Tabs -->
+        <div class="max-w-md mx-auto bg-slate-100 p-1 rounded-xl flex items-center mb-6">
+          <button id="tabCreateBtn" onclick="switchLobbyTab('create')" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-slate-900 shadow-xs cursor-pointer">
+            Create Private Room
+          </button>
+          <button id="tabJoinBtn" onclick="switchLobbyTab('join')" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 cursor-pointer">
+            Join with Code or Link
+          </button>
         </div>
 
-    </section>
+        <!-- Form Card -->
+        <div class="max-w-md mx-auto bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+          <!-- Nickname -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+              Your Nickname in Room
+            </label>
+            <input id="nicknameInput" type="text" value="Sweetheart" placeholder="e.g. Honey" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all" maxlength="24">
+            
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <button onclick="setQuickNick('My Love')" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 cursor-pointer">My Love</button>
+              <button onclick="setQuickNick('Sweetheart')" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 cursor-pointer">Sweetheart</button>
+              <button onclick="setQuickNick('Honey')" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 cursor-pointer">Honey</button>
+              <button onclick="setQuickNick('Darling')" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 cursor-pointer">Darling</button>
+              <button onclick="setQuickNick('Sunshine')" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 cursor-pointer">Sunshine</button>
+            </div>
+          </div>
 
-
-    <!-- LAYOUT -->
-
-    <div class="layout">
-
-
-        <!-- SIDEBAR -->
-
-        <aside>
-
-
-            <!-- ROOM CARD -->
-
-            <div class="card">
-
-                <h3 class="card-title">
-                    🔐 Private Room
-                </h3>
-
-
-                <div class="room-box">
-
-                    <div class="room-label">
-                        ROOM CODE
-                    </div>
-
-                    <div
-                        class="room-code"
-                        id="roomCode">
-
-                        --------
-
-                    </div>
-
-                </div>
-
-
-                <div class="input-row">
-
-                    <input
-                        class="input"
-                        id="roomInput"
-                        placeholder="Enter room code">
-
-                    <button
-                        class="btn btn-primary"
-                        onclick="joinRoom()">
-
-                        Join
-
-                    </button>
-
-                </div>
-
-
-                <button
-                    class="btn"
-                    style="width:100%"
-                    onclick="copyRoomLink()">
-
-                    🔗 Copy Room Link
-
+          <!-- Create Mode Fields -->
+          <div id="createModeFields" class="space-y-4">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Room Code</label>
+                <button onclick="generateNewRoom()" class="text-xs text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1 cursor-pointer">
+                  <i data-lucide="sparkles" class="w-3 h-3"></i><span>Generate New</span>
                 </button>
-
-
-                <p class="small-text">
-
-                    Room links contain only a random
-                    room identifier. Messages are not
-                    stored in a backend database.
-
-                </p>
-
+              </div>
+              <div class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-sm text-slate-800">
+                <span id="displayRoomId">forever-8492</span>
+                <span class="text-[11px] text-emerald-600 font-sans font-medium flex items-center gap-1">
+                  <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 256-bit AES
+                </span>
+              </div>
             </div>
 
+            <!-- Shareable Link Box -->
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700">Invite Link for Partner</span>
+                <span class="text-[10px] text-slate-400 font-mono">End-to-End Encrypted</span>
+              </div>
 
-            <!-- THEME CARD -->
-
-            <div
-                class="card"
-                style="margin-top:16px">
-
-                <h3 class="card-title">
-                    🎨 Appearance
-                </h3>
-
-                <div class="theme-grid">
-
-                    <button
-                        class="theme theme-pink active"
-                        data-theme="pink"
-                        onclick="setTheme('pink')">
-                    </button>
-
-                    <button
-                        class="theme theme-white"
-                        data-theme="white"
-                        onclick="setTheme('white')">
-                    </button>
-
-                    <button
-                        class="theme theme-green"
-                        data-theme="green"
-                        onclick="setTheme('green')">
-                    </button>
-
-                    <button
-                        class="theme theme-blue"
-                        data-theme="blue"
-                        onclick="setTheme('blue')">
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- PRIVACY CARD -->
-
-            <div
-                class="card"
-                style="margin-top:16px">
-
-                <h3 class="card-title">
-                    🛡 Privacy
-                </h3>
-
-                <div class="privacy">
-                    ● WebRTC encrypted transport
-                </div>
-
-                <p class="small-text">
-
-                    WebRTC data channels and media use
-                    encrypted connections. This page
-                    does not save your chat messages
-                    to a backend database.
-
-                </p>
-
-            </div>
-
-
-        </aside>
-
-
-        <!-- CHAT -->
-
-        <section class="card chat">
-
-
-            <!-- CHAT HEADER -->
-
-            <div class="chat-header">
-
-                <div>
-
-                    <strong id="partnerName">
-                        Waiting for partner…
-                    </strong>
-
-                    <div class="status">
-
-                        <span
-                            class="status-dot"
-                            id="connectionDot">
-                        </span>
-
-                        <span id="connectionStatus">
-                            Not connected
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="call-buttons">
-
-                    <button
-                        class="btn"
-                        onclick="startVoiceCall()">
-
-                        ☎ Voice
-
-                    </button>
-
-                    <button
-                        class="btn btn-primary"
-                        onclick="startVideoCall()">
-
-                        📹 Video
-
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- MESSAGES -->
-
-            <div
-                class="messages"
-                id="messages">
-
-                <div class="message">
-
-                    <strong>
-                        PrivateRoom
-                    </strong>
-
-                    <div>
-                        Welcome! Create a room
-                        and connect with your partner.
-                    </div>
-
-                    <div class="message-meta">
-                        Local message
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- COMPOSER -->
-
-            <form
-                class="composer"
-                onsubmit="sendMessage(event)">
-
-                <input
-                    id="messageInput"
-                    placeholder="Write a private message…"
-                    disabled>
-
-                <button
-                    class="btn btn-primary"
-                    id="sendButton"
-                    disabled>
-
-                    Send
-
+              <div class="flex items-center gap-1.5">
+                <input id="generatedLinkInput" type="text" readonly class="w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 text-xs text-slate-600 font-mono truncate select-all">
+                <button id="copyBtn" onclick="copyInviteLink()" class="p-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 text-xs font-medium cursor-pointer" title="Copy Link">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
                 </button>
+                <button onclick="openQrModal()" class="p-2 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 text-xs font-medium cursor-pointer" title="View QR Code">
+                  <i data-lucide="qr-code" class="w-4 h-4"></i>
+                </button>
+              </div>
 
-            </form>
+              <button onclick="shareLinkNative()" class="w-full py-1.5 px-3 rounded-lg text-xs font-medium bg-slate-200/80 hover:bg-slate-200 text-slate-800 flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                <span>Share to Partner (WhatsApp / SMS)</span>
+              </button>
+            </div>
+          </div>
 
-        </section>
+          <!-- Join Mode Fields -->
+          <div id="joinModeFields" class="space-y-4 hidden">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                Room Code or Pasted Link
+              </label>
+              <input id="joinRoomInput" type="text" placeholder="e.g. forever-8492 or paste full link" oninput="handleJoinInput(this.value)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all font-mono">
+            </div>
 
-    </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                Secret Encryption Key
+              </label>
+              <input id="joinKeyInput" type="password" placeholder="Secret Key (Auto-filled if using invite link)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all font-mono">
+            </div>
+          </div>
 
-</main>
-
-</div>
-
-
-<!-- =========================
-     SIGNALING MODAL
-========================= -->
-
-<div
-    class="modal"
-    id="signalModal">
-
-    <div class="modal-content">
-
-        <h2>
-            🔐 Secure Connection
-        </h2>
-
-        <p class="small-text">
-
-            WebRTC needs an initial offer/answer
-            exchange. This single-file version
-            uses manual signaling so no signaling
-            server is required.
-
-        </p>
-
-
-        <button
-            class="btn btn-primary"
-            onclick="createOffer()">
-
-            Create Offer
-
-        </button>
-
-
-        <textarea
-            class="signal-box"
-            id="signalData"
-            placeholder="Offer / answer will appear here...">
-        </textarea>
-
-
-        <div
-            class="input-row">
-
-            <button
-                class="btn"
-                onclick="copySignal()">
-
-                Copy
-
-            </button>
-
-            <button
-                class="btn btn-primary"
-                onclick="applySignal()">
-
-                Apply
-
-            </button>
-
-            <button
-                class="btn"
-                onclick="closeSignalModal()">
-
-                Close
-
-            </button>
-
+          <!-- Enter Button -->
+          <button id="enterRoomBtn" onclick="enterRoom()" class="w-full py-3.5 rounded-xl text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm active:scale-98 transition-all cursor-pointer bg-rose-500 hover:bg-rose-600">
+            <span>Enter Private Sanctuary</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
         </div>
 
+        <!-- 3 Privacy Pillars -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mt-10">
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
+            <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-emerald-600 mb-2.5 shadow-2xs">
+              <i data-lucide="lock" class="w-4 h-4"></i>
+            </div>
+            <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Zero-Server Storage</h2>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">No database, no user accounts, no chat history stored on any backend server. Everything lives purely in browser RAM.</p>
+          </div>
+
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
+            <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-rose-500 mb-2.5 shadow-2xs">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+            </div>
+            <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Direct WebRTC P2P</h2>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">HD voice, video, and ultra-fast messaging travel directly device-to-device between you and your partner.</p>
+          </div>
+
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
+            <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-sky-600 mb-2.5 shadow-2xs">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+            </div>
+            <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider">256-bit AES-GCM</h2>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">Military-grade cryptographic encryption. The secret key is stored only in the URL hash, never sent to any server.</p>
+          </div>
+        </div>
+      </main>
+
+      <footer class="border-t border-slate-100 py-4 px-4 text-center text-xs text-slate-400">
+        Amour Zero-Server Couple Sanctuary • WebRTC Peer-to-Peer • 256-bit AES-GCM Encrypted
+      </footer>
     </div>
 
-</div>
+    <!-- ============================================== -->
+    <!-- VIEW 2: ACTIVE CHAT SCREEN -->
+    <!-- ============================================== -->
+    <div id="chatScreen" class="flex-1 flex flex-col h-screen max-w-4xl mx-auto w-full bg-white sm:border-x sm:border-slate-200 shadow-sm hidden">
+      
+      <!-- Top Nav Header -->
+      <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div class="relative">
+            <div id="partnerAvatar" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm sm:text-base bg-rose-100 text-rose-700 ring-2 ring-slate-200">
+              P
+            </div>
+            <span id="partnerStatusDot" class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-amber-400"></span>
+          </div>
 
-
-<!-- =========================
-     CALL SCREEN
-========================= -->
-
-<div
-    class="call-screen"
-    id="callScreen">
-
-    <div class="video-area">
-
-        <video
-            id="remoteVideo"
-            class="remote-video"
-            autoplay
-            playsinline>
-        </video>
-
-
-        <video
-            id="localVideo"
-            class="local-video"
-            autoplay
-            muted
-            playsinline>
-        </video>
-
-
-        <div class="call-controls">
-
-            <button
-                class="call-control"
-                onclick="toggleMute()">
-
-                🎙️
-
-            </button>
-
-            <button
-                class="call-control"
-                onclick="toggleCamera()">
-
-                📷
-
-            </button>
-
-            <button
-                class="call-control call-end"
-                onclick="endCall()">
-
-                ☎
-
-            </button>
-
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <h1 id="partnerNameDisplay" class="text-sm sm:text-base font-semibold text-slate-800 truncate">
+                Waiting for Partner...
+              </h1>
+              <button onclick="sendHeartPulse()" class="p-1 text-rose-500 hover:scale-125 active:scale-95 transition-transform cursor-pointer" title="Send Heart Pulse">
+                <i data-lucide="heart" class="w-3.5 h-3.5 fill-rose-500 animate-pulse"></i>
+              </button>
+            </div>
+            
+            <div class="flex items-center gap-1.5 text-xs text-slate-500">
+              <span id="connectionBadge" class="flex items-center gap-1 text-amber-600">
+                <i data-lucide="wifi-off" class="w-3 h-3"></i> Invite partner to join
+              </span>
+              <span class="text-slate-300">•</span>
+              <button onclick="openSecurityModal()" class="flex items-center gap-0.5 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer" title="View Security Details">
+                <i data-lucide="lock" class="w-2.5 h-2.5 text-emerald-600"></i>
+                <span class="text-[11px] underline underline-offset-2">E2EE</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-    </div>
+        <!-- Right Header Actions (Calls, Theme, QR, Share, Leave) -->
+        <div class="flex items-center gap-1 sm:gap-2">
+          <!-- Calls Button Group -->
+          <div id="callButtonsContainer" class="flex items-center gap-1 bg-slate-50 p-1 rounded-full border border-slate-200/60">
+            <button onclick="startCall('voice')" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-full text-slate-700 hover:text-emerald-700 hover:bg-white active:scale-95 transition-all flex items-center gap-1 text-xs font-medium cursor-pointer" title="Voice Call">
+              <i data-lucide="phone" class="w-4 h-4 text-emerald-600"></i>
+              <span class="hidden md:inline">Voice</span>
+            </button>
+            <button onclick="startCall('video')" id="headerVideoBtn" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-full text-white bg-rose-500 hover:bg-rose-600 active:scale-95 transition-all flex items-center gap-1 text-xs font-medium cursor-pointer" title="Video Call">
+              <i data-lucide="video" class="w-4 h-4"></i>
+              <span class="hidden md:inline">Video</span>
+            </button>
+          </div>
 
-</div>
+          <!-- Theme Pill -->
+          <div class="relative">
+            <button onclick="toggleThemeDropdown()" class="p-2 sm:px-2.5 sm:py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 border border-slate-200 flex items-center gap-1.5 text-xs font-medium cursor-pointer">
+              <i data-lucide="palette" class="w-4 h-4 text-slate-600"></i>
+              <span id="currentThemeNameDisplay" class="hidden lg:inline">Blush Pink</span>
+            </button>
+            <div id="themeDropdownMenu" class="absolute right-0 mt-1.5 w-44 bg-white rounded-xl shadow-xl border border-slate-200 p-2 z-50 hidden space-y-1">
+              <button onclick="setTheme('pink')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-2">🌸 Blush Pink</button>
+              <button onclick="setTheme('white')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-2">✨ Pure Minimal</button>
+              <button onclick="setTheme('green')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-2">🌿 Sage Mint</button>
+              <button onclick="setTheme('sky-blue')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-2">🌊 Sky Blue</button>
+            </div>
+          </div>
 
-
-<script>
-
-/*
-====================================================
- PRIVATE ROOM
- ZERO SERVER WEBRTC CHAT
-====================================================
-
-Features:
-
-✔ Random room ID
-✔ Peer-to-peer messaging
-✔ WebRTC DataChannel
-✔ WebRTC voice
-✔ WebRTC video
-✔ Responsive UI
-✔ Pink / White / Green / Sky Blue themes
-✔ No backend database
-✔ No message storage
-
-IMPORTANT:
-
-WebRTC needs signaling.
-
-This demo uses MANUAL signaling.
-
-For production:
-
-Replace manual signaling with:
-
-- WebSocket
-- Firebase
-- Supabase
-- WebTransport
-- Bluetooth/local signaling
-- QR code signaling
-
-The media/data connection itself remains
-peer-to-peer after signaling.
-
-====================================================
-*/
-
-
-/* =========================
-   GLOBAL VARIABLES
-========================= */
-
-let roomCode =
-    crypto.randomUUID()
-    .substring(0,8)
-    .toUpperCase();
-
-let peerConnection = null;
-
-let dataChannel = null;
-
-let localStream = null;
-
-let remoteStream = null;
-
-
-/* =========================
-   ROOM
-========================= */
-
-document.getElementById("roomCode")
-    .textContent = roomCode;
-
-
-/* =========================
-   CREATE NEW ROOM
-========================= */
-
-function newRoom() {
-
-    roomCode =
-        crypto.randomUUID()
-        .substring(0,8)
-        .toUpperCase();
-
-    document.getElementById("roomCode")
-        .textContent = roomCode;
-
-    history.replaceState(
-        null,
-        "",
-        "#" + roomCode
-    );
-
-    openSignalModal();
-}
-
-
-/* =========================
-   JOIN ROOM
-========================= */
-
-function joinRoom() {
-
-    const input =
-        document.getElementById("roomInput")
-        .value
-        .trim()
-        .toUpperCase();
-
-    if (!input) {
-
-        alert("Enter a room code.");
-
-        return;
-    }
-
-    roomCode = input;
-
-    document.getElementById("roomCode")
-        .textContent = roomCode;
-
-    history.replaceState(
-        null,
-        "",
-        "#" + roomCode
-    );
-
-    openSignalModal();
-}
-
-
-/* =========================
-   COPY ROOM LINK
-========================= */
-
-async function copyRoomLink() {
-
-    const link =
-        location.href.split("#")[0]
-        + "#"
-        + roomCode;
-
-    try {
-
-        await navigator.clipboard
-            .writeText(link);
-
-        alert("Room link copied!");
-
-    } catch {
-
-        prompt(
- 
+          <button onclick="openQrModal()" class="p-2 rounded-lg text-slate-700 hover:bg-slate-100 border border-slate-200 active:scale-95 transition-all cursor-pointer" title="Show QR Code">
+            <i data-lucide="qr-code" class="w-4 h-4 text-slate-600"></i>
+          </button>
+          <button onclick="shareLinkNative()" class="p-2 rounded-lg text-slate-700 hover:bg-slate-100 border border-slate-200 active:scale-95 transition-all cursor-pointer" title="Share Link">
+            <i data-lucide="share-2" class="w
