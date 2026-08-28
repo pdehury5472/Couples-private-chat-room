@@ -3,86 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amour - Simple Couple Chat</title>
+  <title>Amour - Zero-Server Couple Suite</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <style>
+    /* Camera Filters */
+    .filter-normal { filter: none; }
+    .filter-vintage { filter: sepia(0.6) contrast(1.1) brightness(0.9); }
+    .filter-romantic { filter: saturate(1.5) hue-rotate(-10deg) brightness(1.05); }
+    .filter-bw { filter: grayscale(1) contrast(1.2); }
+    .filter-warm { filter: sepia(0.3) saturate(1.4); }
+    
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+    }
+    .animate-float { animation: floatUp 1.5s ease-out forwards; }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans">
 
   <!-- APP CONTAINER -->
-  <div class="max-w-md mx-auto w-full min-h-screen bg-white shadow-md flex flex-col">
+  <div class="max-w-md mx-auto w-full min-h-screen bg-white shadow-xl flex flex-col relative overflow-hidden">
+
+    <!-- FLOATING HEARTS CONTAINER -->
+    <div id="heartContainer" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
 
     <!-- HEADER -->
-    <header class="p-4 border-b border-slate-100 flex items-center justify-between bg-rose-500 text-white">
+    <header class="p-3.5 bg-rose-500 text-white flex items-center justify-between shadow-md">
       <div class="flex items-center gap-2">
-        <i data-lucide="heart" class="w-5 h-5 fill-current"></i>
-        <h1 class="font-bold text-lg">Amour</h1>
+        <i data-lucide="heart" class="w-5 h-5 fill-current animate-pulse"></i>
+        <h1 class="font-bold text-lg tracking-wide">Amour</h1>
       </div>
-      <span id="statusBadge" class="text-xs bg-rose-600 px-2.5 py-1 rounded-full font-medium">Offline</span>
+      <div id="statusBadge" class="text-xs bg-rose-700/60 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-slate-300"></span> Offline
+      </div>
     </header>
 
-    <!-- STEP 1: JOIN / CREATE ROOM -->
-    <div id="lobbyView" class="p-6 flex-1 flex flex-col justify-center space-y-6">
+    <!-- STEP 1: LOBBY -->
+    <div id="lobbyView" class="p-6 flex-1 flex flex-col justify-center space-y-5">
       <div class="text-center space-y-1">
-        <h2 class="text-xl font-bold text-slate-900">Connect with Partner</h2>
-        <p class="text-xs text-slate-500">Enter a 4-digit room code or paste an invite link</p>
+        <h2 class="text-2xl font-bold text-slate-900">Couple Sanctuary</h2>
+        <p class="text-xs text-slate-500">Instant Peer-to-Peer Calls, Media & Chat</p>
       </div>
 
-      <!-- Nickname Input -->
       <div>
-        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Your Nickname</label>
+        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Your Name</label>
         <input id="nicknameInput" type="text" value="Sweetheart" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400">
       </div>
 
-      <!-- 4-Digit Code & Passcode Controls -->
-      <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+      <div class="space-y-3 bg-rose-50/50 p-4 rounded-xl border border-rose-100">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Room Code (4 Digits)</label>
+          <label class="block text-xs font-semibold text-rose-800 uppercase mb-1">Room Code (4 Digits)</label>
           <input id="roomCodeInput" type="text" maxlength="4" placeholder="1234" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-400">
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Passcode (4 Digits)</label>
-          <input id="passcodeInput" type="password" maxlength="4" placeholder="5678" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-400">
+          <label class="block text-xs font-semibold text-rose-800 uppercase mb-1">Passcode (4 Digits)</label>
+          <input id="passcodeInput" type="text" maxlength="4" placeholder="5678" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-400">
         </div>
-
         <button onclick="generateRandomCodes()" class="text-xs text-rose-600 hover:underline flex items-center gap-1 font-medium mx-auto">
-          <i data-lucide="refresh-cw" class="w-3 h-3"></i> Generate Random Codes
+          <i data-lucide="sparkles" class="w-3 h-3"></i> Generate Random Codes
         </button>
       </div>
 
-      <!-- Connect Button -->
-      <button onclick="startConnection()" class="w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl text-sm shadow-sm transition-all">
-        Join or Create Room
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="initPeer(true)" class="py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl text-xs shadow-sm flex items-center justify-center gap-1.5">
+          <i data-lucide="crown" class="w-4 h-4"></i> Create Room
+        </button>
+        <button onclick="initPeer(false)" class="py-3 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl text-xs shadow-sm flex items-center justify-center gap-1.5">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Join Room
+        </button>
+      </div>
+
+      <button onclick="copyInviteLink()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs flex items-center justify-center gap-1.5">
+        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Invite Link
       </button>
-
-      <!-- Share Link Box -->
-      <div class="pt-2 border-t border-slate-100 space-y-2">
-        <label class="block text-xs text-slate-500 text-center">Or share an instant invite link</label>
-        <button onclick="copyInviteLink()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-xs flex items-center justify-center gap-1.5">
-          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Invite Link
-        </button>
-      </div>
     </div>
 
-    <!-- STEP 2: CHAT VIEW -->
-    <div id="chatView" class="flex-1 flex flex-col hidden">
-      <!-- Chat Sub-Header -->
-      <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs text-slate-600">
-        <div>Chatting with: <strong id="partnerNameDisplay" class="text-slate-900">Partner</strong></div>
-        <button onclick="leaveChat()" class="text-rose-600 font-semibold hover:underline">Leave</button>
+    <!-- STEP 2: ACTIVE CHAT & CALL ROOM -->
+    <div id="chatView" class="flex-1 flex flex-col hidden relative">
+      <!-- SUB HEADER WITH CALL CONTROLS -->
+      <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <div class="text-xs text-slate-500">Connected with</div>
+          <div id="partnerNameDisplay" class="text-sm font-bold text-slate-900">Waiting for partner...</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="startCall(false)" class="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 shadow-sm" title="Voice Call">
+            <i data-lucide="phone" class="w-4 h-4"></i>
+          </button>
+          <button onclick="startCall(true)" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 shadow-sm" title="Video Call">
+            <i data-lucide="video" class="w-4 h-4"></i>
+          </button>
+          <button onclick="leaveChat()" class="p-2 text-slate-400 hover:text-rose-600">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
       </div>
 
-      <!-- Messages Stream -->
-      <div id="messageStream" class="flex-1 p-4 overflow-y-auto space-y-3">
-        <div class="text-center text-xs text-slate-400 my-2">Connection established. Messages are Peer-to-Peer.</div>
+      <!-- VIDEO CALL OVERLAY -->
+      <div id="videoCallOverlay" class="hidden relative bg-slate-900 h-64 flex items-center justify-center overflow-hidden">
+        <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover filter-normal"></video>
+        <video id="localVideo" autoplay playsinline muted class="absolute bottom-2 right-2 w-24 h-32 object-cover rounded-lg border-2 border-white shadow-lg filter-normal"></video>
+        
+        <!-- Filter Controls -->
+        <div class="absolute top-2 left-2 flex gap-1 bg-black/40 backdrop-blur-md p-1 rounded-lg">
+          <button onclick="applyFilter('filter-normal')" class="px-2 py-0.5 text-[10px] text-white bg-white/20 rounded">Normal</button>
+          <button onclick="applyFilter('filter-romantic')" class="px-2 py-0.5 text-[10px] text-white bg-rose-500/60 rounded">Love</button>
+          <button onclick="applyFilter('filter-vintage')" class="px-2 py-0.5 text-[10px] text-white bg-amber-500/60 rounded">Retro</button>
+          <button onclick="applyFilter('filter-bw')" class="px-2 py-0.5 text-[10px] text-white bg-slate-500/60 rounded">B&W</button>
+        </div>
+
+        <button onclick="endCall()" class="absolute bottom-2 left-2 p-2 bg-rose-600 text-white rounded-full">
+          <i data-lucide="phone-off" class="w-4 h-4"></i>
+        </button>
       </div>
 
-      <!-- Input Bar -->
-      <div class="p-3 border-t border-slate-200 flex items-center gap-2">
-        <input id="messageTextInput" type="text" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400">
-        <button onclick="sendMessage()" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600">
+      <!-- MESSAGES STREAM -->
+      <div id="messageStream" class="flex-1 p-4 overflow-y-auto space-y-3"></div>
+
+      <!-- LOVE EMOJI/STICKER QUICK BAR -->
+      <div class="px-3 py-1.5 bg-rose-50/60 border-t border-rose-100 flex items-center justify-around text-xl">
+        <button onclick="sendEmoji('💖')" class="hover:scale-125 transition-transform">💖</button>
+        <button onclick="sendEmoji('😘')" class="hover:scale-125 transition-transform">😘</button>
+        <button onclick="sendEmoji('🌹')" class="hover:scale-125 transition-transform">🌹</button>
+        <button onclick="sendEmoji('🥰')" class="hover:scale-125 transition-transform">🥰</button>
+        <button onclick="sendEmoji('💍')" class="hover:scale-125 transition-transform">💍</button>
+        <button onclick="sendEmoji('👩‍❤️‍👨')" class="hover:scale-125 transition-transform">👩‍❤️‍👨</button>
+      </div>
+
+      <!-- CAMERA CAPTURE PREVIEW MODAL -->
+      <div id="cameraModal" class="hidden absolute inset-0 bg-black/80 z-40 flex flex-col items-center justify-center p-4">
+        <video id="captureVideo" autoplay playsinline class="w-full max-h-64 object-cover rounded-xl border-2 border-white mb-3"></video>
+        <div class="flex gap-3">
+          <button onclick="takeSnapAndSend()" class="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-1">
+            <i data-lucide="camera" class="w-4 h-4"></i> Snap & Send
+          </button>
+          <button onclick="closeCameraModal()" class="px-4 py-2 bg-slate-600 text-white rounded-xl text-xs font-bold">Cancel</button>
+        </div>
+      </div>
+
+      <!-- INPUT BAR -->
+      <div class="p-3 border-t border-slate-200 flex items-center gap-2 bg-white">
+        <button onclick="openCameraModal()" class="p-2 text-slate-500 hover:text-rose-500" title="Capture Photo">
+          <i data-lucide="camera" class="w-5 h-5"></i>
+        </button>
+        
+        <label class="p-2 text-slate-500 hover:text-rose-500 cursor-pointer" title="Send Attachment">
+          <i data-lucide="paperclip" class="w-5 h-5"></i>
+          <input type="file" id="fileInput" class="hidden" onchange="sendFile(this)">
+        </label>
+
+        <input id="messageTextInput" type="text" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendTextMessage()" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400">
+        
+        <button onclick="sendTextMessage()" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600">
           <i data-lucide="send" class="w-4 h-4"></i>
         </button>
       </div>
@@ -93,6 +169,8 @@
   <script>
     let peer = null;
     let conn = null;
+    let currentCall = null;
+    let localStream = null;
     let myNickname = 'Sweetheart';
     let partnerNickname = 'Partner';
 
@@ -101,24 +179,18 @@
       parseUrlHash();
     });
 
-    // Generate random 4-digit Room Code and Passcode
     function generateRandomCodes() {
-      const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
-      const passcode = Math.floor(1000 + Math.random() * 9000).toString();
-      document.getElementById('roomCodeInput').value = roomCode;
-      document.getElementById('passcodeInput').value = passcode;
+      document.getElementById('roomCodeInput').value = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('passcodeInput').value = Math.floor(1000 + Math.random() * 9000);
     }
 
-    // Auto-fill codes if an invite link is opened
     function parseUrlHash() {
       const hash = window.location.hash.substring(1);
       if (hash) {
         const params = new URLSearchParams(hash);
-        const room = params.get('room');
-        const pass = params.get('pass');
-        if (room && pass) {
-          document.getElementById('roomCodeInput').value = room;
-          document.getElementById('passcodeInput').value = pass;
+        if (params.get('room') && params.get('pass')) {
+          document.getElementById('roomCodeInput').value = params.get('room');
+          document.getElementById('passcodeInput').value = params.get('pass');
         }
       } else {
         generateRandomCodes();
@@ -128,57 +200,64 @@
     function copyInviteLink() {
       const room = document.getElementById('roomCodeInput').value.trim();
       const pass = document.getElementById('passcodeInput').value.trim();
-      if (room.length !== 4 || pass.length !== 4) {
-        alert('Please enter valid 4-digit room code and passcode first.');
-        return;
-      }
+      if (room.length !== 4 || pass.length !== 4) return alert('Enter valid 4-digit codes!');
       const url = `${window.location.origin}${window.location.pathname}#room=${room}&pass=${pass}`;
       navigator.clipboard.writeText(url);
-      alert('Invite link copied to clipboard!');
+      alert('Invite link copied!');
     }
 
-    function startConnection() {
+    function initPeer(isHost) {
       const room = document.getElementById('roomCodeInput').value.trim();
       const pass = document.getElementById('passcodeInput').value.trim();
       myNickname = document.getElementById('nicknameInput').value.trim() || 'Sweetheart';
 
-      if (room.length !== 4 || pass.length !== 4) {
-        alert('Both Room Code and Passcode must be exactly 4 digits.');
-        return;
-      }
+      if (room.length !== 4 || pass.length !== 4) return alert('Both codes must be 4 digits!');
 
-      // Combine Room Code + Passcode into a single peer ID target
-      const fullPeerId = `amour-${room}-${pass}`;
+      const hostId = `amour-${room}-${pass}-host`;
+      const joinerId = `amour-${room}-${pass}-joiner`;
+
+      const myId = isHost ? hostId : joinerId;
+      const targetId = isHost ? joinerId : hostId;
 
       document.getElementById('lobbyView').classList.add('hidden');
       document.getElementById('chatView').classList.remove('hidden');
-      document.getElementById('statusBadge').innerText = 'Connecting...';
+      updateStatus('Connecting...', 'bg-amber-500');
 
-      // Initialize PeerJS with public STUN servers
-      peer = new Peer({
-        config: {
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      peer = new Peer(myId, {
+        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
+      });
+
+      peer.on('open', () => {
+        if (!isHost) {
+          conn = peer.connect(targetId);
+          bindConnection();
         }
       });
 
-      peer.on('open', (id) => {
-        // Try connecting to partner using the combined code
-        conn = peer.connect(fullPeerId);
-        setupConnectionHandlers();
+      peer.on('connection', (incoming) => {
+        conn = incoming;
+        bindConnection();
+      });
 
-        // Also listen for incoming connections if partner joins later
-        peer.on('connection', (incomingConn) => {
-          conn = incomingConn;
-          setupConnectionHandlers();
-        });
+      peer.on('call', async (call) => {
+        if (confirm('Incoming Call! Accept?')) {
+          localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          document.getElementById('videoCallOverlay').classList.remove('hidden');
+          document.getElementById('localVideo').srcObject = localStream;
+          call.answer(localStream);
+          currentCall = call;
+          call.on('stream', (remoteStream) => {
+            document.getElementById('remoteVideo').srcObject = remoteStream;
+          });
+        }
       });
     }
 
-    function setupConnectionHandlers() {
+    function bindConnection() {
       conn.on('open', () => {
-        document.getElementById('statusBadge').innerText = 'Connected';
-        document.getElementById('statusBadge').className = 'text-xs bg-emerald-600 px-2.5 py-1 rounded-full font-medium';
+        updateStatus('Connected', 'bg-emerald-500');
         conn.send({ type: 'handshake', nickname: myNickname });
+        confetti({ particleCount: 40, spread: 50 });
       });
 
       conn.on('data', (data) => {
@@ -187,37 +266,138 @@
           document.getElementById('partnerNameDisplay').innerText = partnerNickname;
         } else if (data.type === 'text') {
           renderMessage(data.text, 'partner');
+        } else if (data.type === 'emoji') {
+          renderMessage(data.emoji, 'partner', true);
+          spawnFloatingHeart(data.emoji);
+        } else if (data.type === 'file') {
+          renderFileMessage(data.fileName, data.fileData, 'partner');
         }
-      });
-
-      conn.on('close', () => {
-        document.getElementById('statusBadge').innerText = 'Disconnected';
-        document.getElementById('statusBadge').className = 'text-xs bg-rose-600 px-2.5 py-1 rounded-full font-medium';
       });
     }
 
-    function sendMessage() {
+    function updateStatus(text, bgClass) {
+      const badge = document.getElementById('statusBadge');
+      badge.className = `text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5 ${bgClass} text-white`;
+      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> ${text}`;
+    }
+
+    function sendTextMessage() {
       const input = document.getElementById('messageTextInput');
       const text = input.value.trim();
       if (!text || !conn) return;
-
       renderMessage(text, 'self');
       conn.send({ type: 'text', text });
       input.value = '';
     }
 
-    function renderMessage(text, sender) {
+    function sendEmoji(emoji) {
+      if (!conn) return;
+      renderMessage(emoji, 'self', true);
+      conn.send({ type: 'emoji', emoji });
+      spawnFloatingHeart(emoji);
+    }
+
+    function renderMessage(content, sender, isLarge = false) {
       const stream = document.getElementById('messageStream');
       const isSelf = sender === 'self';
-      const bubble = document.createElement('div');
-      bubble.className = `flex ${isSelf ? 'justify-end' : 'justify-start'}`;
-      bubble.innerHTML = `
-        <div class="max-w-[80%] px-3 py-2 rounded-xl text-sm ${isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800'}">
-          ${text}
-        </div>
-      `;
-      stream.appendChild(bubble);
+      const div = document.createElement('div');
+      div.className = `flex ${isSelf ? 'justify-end' : 'justify-start'}`;
+      div.innerHTML = `
+        <div class="max-w-[75%] px-3.5 py-2 rounded-2xl ${isLarge ? 'text-3xl bg-transparent' : isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800'}">
+          ${content}
+        </div>`;
+      stream.appendChild(div);
       stream.scrollTop = stream.scrollHeight;
+    }
+
+    function sendFile(input) {
+      const file = input.files[0];
+      if (!file || !conn) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const fileData = e.target.result;
+        conn.send({ type: 'file', fileName: file.name, fileData });
+        renderFileMessage(file.name, fileData, 'self');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderFileMessage(fileName, fileData, sender) {
+      const stream = document.getElementById('messageStream');
+      const isSelf = sender === 'self';
+      const isImage = fileData.startsWith('data:image');
+      const div = document.createElement('div');
+      div.className = `flex ${isSelf ? 'justify-end' : 'justify-start'}`;
+      
+      let content = isImage 
+        ? `<img src="${fileData}" class="max-w-xs rounded-lg border border-slate-200">`
+        : `<a href="${fileData}" download="${fileName}" class="underline text-xs flex items-center gap-1"><i data-lucide="file"></i> ${fileName}</a>`;
+
+      div.innerHTML = `<div class="max-w-[75%] p-2 rounded-2xl ${isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800'}">${content}</div>`;
+      stream.appendChild(div);
+      stream.scrollTop = stream.scrollHeight;
+      lucide.createIcons();
+    }
+
+    // CALLING SYSTEM
+    async function startCall(video) {
+      if (!conn) return alert('Connect to partner first!');
+      localStream = await navigator.mediaDevices.getUserMedia({ video, audio: true });
+      document.getElementById('videoCallOverlay').classList.remove('hidden');
+      document.getElementById('localVideo').srcObject = localStream;
+
+      currentCall = peer.call(conn.peer, localStream);
+      currentCall.on('stream', (remoteStream) => {
+        document.getElementById('remoteVideo').srcObject = remoteStream;
+      });
+    }
+
+    function endCall() {
+      if (currentCall) currentCall.close();
+      if (localStream) localStream.getTracks().forEach(t => t.stop());
+      document.getElementById('videoCallOverlay').classList.add('hidden');
+    }
+
+    function applyFilter(filterClass) {
+      document.getElementById('localVideo').className = `absolute bottom-2 right-2 w-24 h-32 object-cover rounded-lg border-2 border-white shadow-lg ${filterClass}`;
+      document.getElementById('remoteVideo').className = `w-full h-full object-cover ${filterClass}`;
+    }
+
+    // CAMERA SNAPSHOT SYSTEM
+    let modalStream = null;
+    async function openCameraModal() {
+      document.getElementById('cameraModal').classList.remove('hidden');
+      modalStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      document.getElementById('captureVideo').srcObject = modalStream;
+    }
+
+    function closeCameraModal() {
+      if (modalStream) modalStream.getTracks().forEach(t => t.stop());
+      document.getElementById('cameraModal').classList.add('hidden');
+    }
+
+    function takeSnapAndSend() {
+      const video = document.getElementById('captureVideo');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const fileData = canvas.toDataURL('image/png');
+      
+      conn.send({ type: 'file', fileName: 'photo.png', fileData });
+      renderFileMessage('photo.png', fileData, 'self');
+      closeCameraModal();
+    }
+
+    function spawnFloatingHeart(emoji) {
+      const container = document.getElementById('heartContainer');
+      const heart = document.createElement('div');
+      heart.className = 'absolute text-3xl animate-float pointer-events-none';
+      heart.innerText = emoji;
+      heart.style.left = `${Math.random() * 80 + 10}%`;
+      heart.style.bottom = '10%';
+      container.appendChild(heart);
+      setTimeout(() => heart.remove(), 1500);
     }
 
     function leaveChat() {
