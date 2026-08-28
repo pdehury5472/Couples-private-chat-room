@@ -3,10 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lovo Birds - Zero-Server Couple Suite</title>
+  <title>Chat Room - Secure Peer-to-Peer Suite</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
+    /* Privacy Protections: Prevents screenshotting/screen recording on supported browsers/devices */
+    body, video, canvas, img {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+    @media print {
+      body { display: none !important; }
+    }
+
     .mirror-video { transform: scaleX(-1); }
     .filter-normal { filter: none; }
     .filter-vintage { filter: sepia(0.6) contrast(1.1) brightness(0.9); }
@@ -20,53 +30,71 @@
     .animate-float { animation: floatUp 1.5s ease-out forwards; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans select-none" oncontextmenu="return false;">
 
   <div class="max-w-md mx-auto w-full min-h-screen bg-white shadow-xl flex flex-col relative overflow-hidden">
 
     <div id="heartContainer" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
 
     <!-- HEADER -->
-    <header class="p-3.5 bg-rose-500 text-white flex items-center justify-between shadow-md">
+    <header class="p-3.5 bg-slate-900 text-white flex items-center justify-between shadow-md">
       <div class="flex items-center gap-2">
-        <span class="text-xl">🕊️</span>
-        <h1 class="font-bold text-xl tracking-wide font-serif">Lovo Birds</h1>
+        <span class="text-xl">🔒</span>
+        <h1 class="font-bold text-xl tracking-wide font-serif">Chat Room</h1>
       </div>
-      <div id="statusBadge" class="text-xs bg-rose-700/60 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
-        <span class="w-2 h-2 rounded-full bg-slate-300"></span> Offline
+      <div class="flex items-center gap-2">
+        <div id="statusBadge" class="text-xs bg-slate-800 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-slate-400"></span> Offline
+        </div>
       </div>
     </header>
 
     <!-- LOBBY VIEW -->
-    <div id="lobbyView" class="p-6 flex-1 flex flex-col justify-center space-y-5">
+    <div id="lobbyView" class="p-6 flex-1 flex flex-col justify-center space-y-4">
       <div class="text-center space-y-1">
-        <div class="inline-flex p-3 bg-rose-100 text-rose-600 rounded-full mb-2 text-3xl">
-          🕊️
+        <div class="inline-flex p-3 bg-rose-100 text-rose-600 rounded-full mb-1 text-3xl">
+          🔒
         </div>
-        <h2 class="text-2xl font-bold text-slate-900">Lovo Birds Sanctuary</h2>
-        <p class="text-xs text-slate-500">Instant Peer-to-Peer Calls, Media & Chat</p>
+        <h2 class="text-2xl font-bold text-slate-900">Chat Room Sanctuary</h2>
+        <div class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+          🛡️ Private & Encrypted P2P
+        </div>
+        <p class="text-xs text-slate-500 pt-1">Direct Browser-to-Browser Calls, Media & Chat</p>
       </div>
 
-      <!-- LOG BOX FOR DIAGNOSTICS -->
-      <div id="debugLog" class="p-2 bg-slate-900 text-emerald-400 font-mono text-[10px] rounded-lg h-16 overflow-y-auto leading-tight">
-        [System Ready] Select or enter codes to start...
+      <!-- DIAGNOSTIC LOG -->
+      <div id="debugLog" class="p-2 bg-slate-900 text-emerald-400 font-mono text-[10px] rounded-lg h-14 overflow-y-auto leading-tight">
+        [System Ready] Select mode and connect...
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Your Name</label>
-        <input id="nicknameInput" type="text" value="Lovebird" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400">
+        <input id="nicknameInput" type="text" value="Guest" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400">
       </div>
 
-      <div class="space-y-3 bg-rose-50/50 p-4 rounded-xl border border-rose-100">
+      <!-- CHAT MODE SELECTOR -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Chat Mode</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="modeCouple" type="button" class="py-2 px-3 border-2 border-rose-500 bg-rose-50 text-rose-600 font-bold rounded-lg text-xs">
+            👩‍❤️‍👨 Couple (1-on-1)
+          </button>
+          <button id="modeGroup" type="button" class="py-2 px-3 border-2 border-slate-200 bg-white text-slate-600 font-bold rounded-lg text-xs">
+            👨‍👩‍👧‍👦 Group Room
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-2 bg-rose-50/50 p-3 rounded-xl border border-rose-100">
         <div>
           <label class="block text-xs font-semibold text-rose-800 uppercase mb-1">Room Code (4 Digits)</label>
-          <input id="roomCodeInput" type="text" maxlength="4" placeholder="1234" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-400">
+          <input id="roomCodeInput" type="text" maxlength="4" placeholder="1234" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-400">
         </div>
         <div>
           <label class="block text-xs font-semibold text-rose-800 uppercase mb-1">Passcode (4 Digits)</label>
-          <input id="passcodeInput" type="text" maxlength="4" placeholder="5678" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-400">
+          <input id="passcodeInput" type="text" maxlength="4" placeholder="5678" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-400">
         </div>
-        <button id="btnGenerate" type="button" class="text-xs text-rose-600 hover:underline flex items-center gap-1 font-medium mx-auto">
+        <button id="btnGenerate" type="button" class="text-xs text-rose-600 hover:underline flex items-center gap-1 font-medium mx-auto pt-1">
           ✨ Generate Random Codes
         </button>
       </div>
@@ -89,16 +117,16 @@
     <div id="chatView" class="flex-1 flex flex-col hidden relative">
       <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="text-lg">🕊️</span>
+          <span class="text-lg">🔒</span>
           <div>
-            <div class="text-[10px] text-slate-400 uppercase tracking-wider">Connected</div>
-            <div id="partnerNameDisplay" class="text-sm font-bold text-slate-900">Waiting for partner...</div>
+            <div id="roomModeBadge" class="text-[10px] text-slate-400 uppercase tracking-wider">Connected</div>
+            <div id="partnerNameDisplay" class="text-sm font-bold text-slate-900">Waiting for connections...</div>
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button id="btnVoiceCall" class="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 shadow-sm text-xs font-bold">📞 Call</button>
-          <button id="btnVideoCall" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 shadow-sm text-xs font-bold">📹 Video</button>
-          <button id="btnLeave" class="p-2 text-slate-400 hover:text-rose-600 text-xs font-bold">❌ Leave</button>
+          <button id="btnVoiceCall" class="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 shadow-sm text-xs font-bold">📞</button>
+          <button id="btnVideoCall" class="p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 shadow-sm text-xs font-bold">📹</button>
+          <button id="btnLeave" class="p-2 text-slate-400 hover:text-rose-600 text-xs font-bold">❌</button>
         </div>
       </div>
 
@@ -111,7 +139,7 @@
         <button class="emoji-btn hover:scale-125 transition-transform" data-emoji="🌹">🌹</button>
         <button class="emoji-btn hover:scale-125 transition-transform" data-emoji="🥰">🥰</button>
         <button class="emoji-btn hover:scale-125 transition-transform" data-emoji="💍">💍</button>
-        <button class="emoji-btn hover:scale-125 transition-transform" data-emoji="🕊️">🕊️</button>
+        <button class="emoji-btn hover:scale-125 transition-transform" data-emoji="🔒">🔒</button>
       </div>
 
       <!-- INPUT BAR -->
@@ -132,16 +160,21 @@
       <video id="localVideo" autoplay playsinline muted class="absolute bottom-20 right-4 w-32 h-44 object-cover rounded-2xl border-2 border-white shadow-2xl z-10 mirror-video filter-normal"></video>
 
       <div class="relative z-20 flex justify-between items-center w-full max-w-4xl mx-auto">
-        <div class="flex gap-1.5 bg-black/50 backdrop-blur-md p-1.5 rounded-full border border-white/20">
-          <button onclick="applyFilter('filter-normal')" class="px-2.5 py-1 text-xs text-white bg-white/20 rounded-full">Normal</button>
-          <button onclick="applyFilter('filter-romantic')" class="px-2.5 py-1 text-xs text-white bg-rose-500/80 rounded-full">Love</button>
-          <button onclick="applyFilter('filter-vintage')" class="px-2.5 py-1 text-xs text-white bg-amber-500/80 rounded-full">Retro</button>
-          <button onclick="applyFilter('filter-bw')" class="px-2.5 py-1 text-xs text-white bg-slate-500/80 rounded-full">B&W</button>
+        <div class="flex gap-1 bg-black/50 backdrop-blur-md p-1 rounded-full border border-white/20">
+          <button onclick="applyFilter('filter-normal')" class="px-2 py-1 text-[10px] text-white bg-white/20 rounded-full">Normal</button>
+          <button onclick="applyFilter('filter-romantic')" class="px-2 py-1 text-[10px] text-white bg-rose-500/80 rounded-full">Love</button>
+          <button onclick="applyFilter('filter-vintage')" class="px-2 py-1 text-[10px] text-white bg-amber-500/80 rounded-full">Retro</button>
+          <button onclick="applyFilter('filter-bw')" class="px-2 py-1 text-[10px] text-white bg-slate-500/80 rounded-full">B&W</button>
         </div>
 
-        <button id="btnSwitchCallCam" class="p-2.5 bg-black/50 backdrop-blur-md text-white rounded-full border border-white/20 hover:bg-black/70 text-xs font-bold">
-          🔄 Flip
-        </button>
+        <div class="flex gap-2">
+          <button id="btnCallFlashlight" class="p-2 bg-black/50 backdrop-blur-md text-white rounded-full border border-white/20 hover:bg-black/70 text-xs font-bold hidden">
+            💡 Torch
+          </button>
+          <button id="btnSwitchCallCam" class="p-2 bg-black/50 backdrop-blur-md text-white rounded-full border border-white/20 hover:bg-black/70 text-xs font-bold">
+            🔄 Flip
+          </button>
+        </div>
       </div>
 
       <div class="relative z-20 flex justify-center w-full pb-4">
@@ -155,6 +188,9 @@
     <div id="cameraModal" class="hidden fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4">
       <div class="relative w-full max-w-sm">
         <video id="captureVideo" autoplay playsinline class="w-full h-80 object-cover rounded-2xl border-2 border-white/30 mirror-video"></video>
+        <button id="btnSnapFlashlight" class="absolute top-3 left-3 p-2 bg-black/60 text-white rounded-full backdrop-blur-md text-xs font-bold hidden">
+          💡 Torch
+        </button>
         <button id="btnSwitchSnapCam" class="absolute top-3 right-3 p-2 bg-black/60 text-white rounded-full backdrop-blur-md text-xs font-bold">
           🔄 Flip
         </button>
@@ -171,19 +207,34 @@
 
   <script>
     let peer = null;
-    let conn = null;
+    let connections = [];
     let currentCall = null;
     let localStream = null;
     let snapStream = null;
-    let myNickname = 'Lovebird';
-    let partnerNickname = 'Partner';
+    let myNickname = 'Guest';
     let currentFacingMode = 'user';
+    let isTorchOn = false;
+    let isGroupMode = false;
 
     function log(msg) {
       const box = document.getElementById('debugLog');
       box.innerHTML += '<br/>> ' + msg;
       box.scrollTop = box.scrollHeight;
     }
+
+    // Screenshot & Screen Recording Protections
+    window.addEventListener('keyup', function(e) {
+      if (e.key === 'PrintScreen') {
+        navigator.clipboard.writeText('');
+        alert('Screenshots are disabled for privacy.');
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u')) {
+        e.preventDefault();
+      }
+    });
 
     window.onload = function() {
       document.getElementById('btnGenerate').onclick = generateRandomCodes;
@@ -192,6 +243,9 @@
       document.getElementById('btnCopyLink').onclick = copyInviteLink;
       document.getElementById('btnSendText').onclick = sendTextMessage;
       
+      document.getElementById('modeCouple').onclick = function() { setChatMode(false); };
+      document.getElementById('modeGroup').onclick = function() { setChatMode(true); };
+
       document.getElementById('messageTextInput').onkeydown = function(e) {
         if (e.key === 'Enter') sendTextMessage();
       };
@@ -200,28 +254,41 @@
       document.getElementById('btnVoiceCall').onclick = function() { startCall(false); };
       document.getElementById('btnVideoCall').onclick = function() { startCall(true); };
       document.getElementById('btnEndCall').onclick = endCall;
-      document.getElementById('btnSwitchCallCam').onclick = switchCallCamera;
       
+      document.getElementById('btnSwitchCallCam').onclick = switchCallCamera;
+      document.getElementById('btnCallFlashlight').onclick = function() { toggleTorch(localStream); };
+
       document.getElementById('btnOpenSnap').onclick = openCameraModal;
       document.getElementById('btnCloseSnap').onclick = closeCameraModal;
       document.getElementById('btnSwitchSnapCam').onclick = switchSnapCamera;
+      document.getElementById('btnSnapFlashlight').onclick = function() { toggleTorch(snapStream); };
       document.getElementById('btnTakeSnap').onclick = takeSnapAndSend;
       document.getElementById('btnLeave').onclick = leaveChat;
 
       let emojiBtns = document.querySelectorAll('.emoji-btn');
       for(let i = 0; i < emojiBtns.length; i++) {
-        emojiBtns[i].onclick = function() {
-          sendEmoji(this.getAttribute('data-emoji'));
-        };
+        emojiBtns[i].onclick = function() { sendEmoji(this.getAttribute('data-emoji')); };
       }
 
       parseUrlHash();
     };
 
+    function setChatMode(group) {
+      isGroupMode = group;
+      const btnC = document.getElementById('modeCouple');
+      const btnG = document.getElementById('modeGroup');
+      if (group) {
+        btnG.className = "py-2 px-3 border-2 border-rose-500 bg-rose-50 text-rose-600 font-bold rounded-lg text-xs";
+        btnC.className = "py-2 px-3 border-2 border-slate-200 bg-white text-slate-600 font-bold rounded-lg text-xs";
+      } else {
+        btnC.className = "py-2 px-3 border-2 border-rose-500 bg-rose-50 text-rose-600 font-bold rounded-lg text-xs";
+        btnG.className = "py-2 px-3 border-2 border-slate-200 bg-white text-slate-600 font-bold rounded-lg text-xs";
+      }
+    }
+
     function generateRandomCodes() {
       document.getElementById('roomCodeInput').value = Math.floor(1000 + Math.random() * 9000);
       document.getElementById('passcodeInput').value = Math.floor(1000 + Math.random() * 9000);
-      log('Codes Generated');
     }
 
     function parseUrlHash() {
@@ -231,7 +298,7 @@
         if (params.get('room') && params.get('pass')) {
           document.getElementById('roomCodeInput').value = params.get('room');
           document.getElementById('passcodeInput').value = params.get('pass');
-          log('Invite codes loaded from URL');
+          if (params.get('mode') === 'group') setChatMode(true);
         }
       } else {
         generateRandomCodes();
@@ -242,7 +309,8 @@
       const room = document.getElementById('roomCodeInput').value.trim();
       const pass = document.getElementById('passcodeInput').value.trim();
       if (room.length !== 4 || pass.length !== 4) return alert('Enter valid 4-digit codes!');
-      const url = window.location.origin + window.location.pathname + '#room=' + room + '&pass=' + pass;
+      const modeParam = isGroupMode ? '&mode=group' : '';
+      const url = window.location.origin + window.location.pathname + '#room=' + room + '&pass=' + pass + modeParam;
       
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url);
@@ -255,73 +323,55 @@
     function initPeer(isHost) {
       const room = document.getElementById('roomCodeInput').value.trim();
       const pass = document.getElementById('passcodeInput').value.trim();
-      myNickname = document.getElementById('nicknameInput').value.trim() || 'Lovebird';
+      myNickname = document.getElementById('nicknameInput').value.trim() || 'Guest';
 
       if (room.length !== 4 || pass.length !== 4) return alert('Both codes must be 4 digits!');
 
-      const hostId = 'lovo-' + room + '-' + pass + '-host';
-      const joinerId = 'lovo-' + room + '-' + pass + '-joiner';
-
-      const myId = isHost ? hostId : joinerId;
-      const targetId = isHost ? joinerId : hostId;
-
-      log('Initializing WebRTC Server...');
-      updateStatus('Connecting...', 'bg-amber-500');
-
-      if (typeof Peer === 'undefined') {
-        log('ERROR: PeerJS library blocked');
-        alert('PeerJS library failed to load. Check ad-blocker or internet connection.');
-        return;
+      let myId = '';
+      if (isGroupMode) {
+        myId = isHost ? 'chatroom-grp-' + room + '-' + pass + '-host' : 'chatroom-grp-' + room + '-' + pass + '-' + Math.floor(Math.random() * 8999 + 1000);
+      } else {
+        myId = isHost ? 'chatroom-' + room + '-' + pass + '-host' : 'chatroom-' + room + '-' + pass + '-joiner';
       }
 
-      // PUBLIC STUN + TURN SERVERS (Bypasses mobile NAT & corporate firewalls)
+      log('Starting Chat Room Peer Service...');
+      updateStatus('Connecting...', 'bg-amber-500');
+
       peer = new Peer(myId, {
         config: { 
           iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
             { urls: 'stun:openrelay.metered.ca:80' },
-            { 
-              urls: 'turn:openrelay.metered.ca:80',
-              username: 'openrelay',
-              credential: 'openrelay'
-            },
-            { 
-              urls: 'turn:openrelay.metered.ca:443',
-              username: 'openrelay',
-              credential: 'openrelay'
-            }
+            { urls: 'turn:openrelay.metered.ca:80', username: 'openrelay', credential: 'openrelay' },
+            { urls: 'turn:openrelay.metered.ca:443', username: 'openrelay', credential: 'openrelay' }
           ] 
         }
       });
 
       peer.on('open', function(id) {
-        log('Registered with ID: ' + id);
+        log('Registered ID: ' + id);
         if (!isHost) {
-          log('Attempting connection to host...');
-          conn = peer.connect(targetId, { reliable: true });
-          bindConnection();
+          const targetHostId = isGroupMode ? 'chatroom-grp-' + room + '-' + pass + '-host' : 'chatroom-' + room + '-' + pass + '-host';
+          const conn = peer.connect(targetHostId, { reliable: true });
+          bindConnection(conn);
         } else {
-          log('Room created. Waiting for partner to join...');
+          log('Room Ready. Sharing enabled.');
+          showChatView();
         }
       });
 
       peer.on('connection', function(incoming) {
-        log('Partner connected to room!');
-        conn = incoming;
-        bindConnection();
+        log('New member connected!');
+        bindConnection(incoming);
       });
 
       peer.on('error', function(err) {
-        log('WebRTC Error: ' + err.type);
+        log('Error: ' + err.type);
         updateStatus('Error', 'bg-rose-700');
-        if(err.type === 'peer-unavailable') {
-          alert('Partner room not found. Make sure Host clicks "Create Room" first!');
-        }
       });
 
       peer.on('call', async function(call) {
-        if (confirm('Incoming Call! Accept?')) {
+        if (confirm('Incoming Video/Voice Call! Accept?')) {
           try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
             document.getElementById('videoCallOverlay').classList.remove('hidden');
@@ -332,38 +382,66 @@
               document.getElementById('remoteVideo').srcObject = remoteStream;
             });
           } catch(e) {
-            alert('Could not access camera/microphone');
+            alert('Camera/Mic access denied.');
           }
         }
       });
     }
 
-    function bindConnection() {
+    function bindConnection(conn) {
+      connections.push(conn);
+
       conn.on('open', function() {
-        log('P2P Handshake Complete!');
-        document.getElementById('lobbyView').classList.add('hidden');
-        document.getElementById('chatView').classList.remove('hidden');
+        showChatView();
         updateStatus('Connected', 'bg-emerald-500');
         conn.send({ type: 'handshake', nickname: myNickname });
       });
 
       conn.on('data', function(data) {
         if (data.type === 'handshake') {
-          partnerNickname = data.nickname;
-          document.getElementById('partnerNameDisplay').innerText = partnerNickname;
+          updatePartnerHeader(data.nickname);
         } else if (data.type === 'text') {
-          renderMessage(data.text, 'partner');
+          renderMessage(data.text, 'partner', false, data.sender || 'Partner');
         } else if (data.type === 'emoji') {
-          renderMessage(data.emoji, 'partner', true);
+          renderMessage(data.emoji, 'partner', true, data.sender || 'Partner');
           spawnFloatingHeart(data.emoji);
         } else if (data.type === 'file') {
-          renderFileMessage(data.fileName, data.fileData, 'partner');
+          renderFileMessage(data.fileName, data.fileData, 'partner', data.sender || 'Partner');
+        }
+
+        if (isGroupMode) {
+          connections.forEach(function(c) {
+            if (c.peer !== conn.peer && c.open) {
+              c.send(data);
+            }
+          });
         }
       });
 
       conn.on('close', function() {
-        log('Partner disconnected.');
-        updateStatus('Disconnected', 'bg-rose-600');
+        connections = connections.filter(function(c) { return c.peer !== conn.peer; });
+        if (connections.length === 0) updateStatus('Disconnected', 'bg-rose-600');
+      });
+    }
+
+    function showChatView() {
+      document.getElementById('lobbyView').classList.add('hidden');
+      document.getElementById('chatView').classList.remove('hidden');
+      document.getElementById('roomModeBadge').innerText = isGroupMode ? 'Group Chat Active' : 'Private Chat Active';
+    }
+
+    function updatePartnerHeader(name) {
+      const el = document.getElementById('partnerNameDisplay');
+      if (isGroupMode) {
+        el.innerText = 'Group Members Connected';
+      } else {
+        el.innerText = name;
+      }
+    }
+
+    function broadcast(data) {
+      connections.forEach(function(c) {
+        if (c.open) c.send(data);
       });
     }
 
@@ -376,65 +454,70 @@
     function sendTextMessage() {
       const input = document.getElementById('messageTextInput');
       const text = input.value.trim();
-      if (!text || !conn) return;
+      if (!text || connections.length === 0) return;
       renderMessage(text, 'self');
-      conn.send({ type: 'text', text: text });
+      broadcast({ type: 'text', text: text, sender: myNickname });
       input.value = '';
     }
 
     function sendEmoji(emoji) {
-      if (!conn) return;
+      if (connections.length === 0) return;
       renderMessage(emoji, 'self', true);
-      conn.send({ type: 'emoji', emoji: emoji });
+      broadcast({ type: 'emoji', emoji: emoji, sender: myNickname });
       spawnFloatingHeart(emoji);
     }
 
-    function renderMessage(content, sender, isLarge) {
+    function renderMessage(content, sender, isLarge, senderName) {
       const stream = document.getElementById('messageStream');
       const isSelf = sender === 'self';
       const div = document.createElement('div');
-      div.className = 'flex ' + (isSelf ? 'justify-end' : 'justify-start');
-      div.innerHTML = '<div class="max-w-[75%] px-3.5 py-2 rounded-2xl ' + (isLarge ? 'text-3xl bg-transparent' : isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800') + '">' + content + '</div>';
+      div.className = 'flex flex-col ' + (isSelf ? 'items-end' : 'items-start');
+      
+      const nameTag = (!isSelf && senderName) ? '<span class="text-[10px] text-slate-400 mb-0.5 px-1">' + senderName + '</span>' : '';
+      const body = '<div class="max-w-[75%] px-3.5 py-2 rounded-2xl ' + (isLarge ? 'text-3xl bg-transparent' : isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800') + '">' + content + '</div>';
+      
+      div.innerHTML = nameTag + body;
       stream.appendChild(div);
       stream.scrollTop = stream.scrollHeight;
     }
 
     function sendFile(input) {
       const file = input.files[0];
-      if (!file || !conn) return;
+      if (!file || connections.length === 0) return;
       const reader = new FileReader();
       reader.onload = function(e) {
         const fileData = e.target.result;
-        conn.send({ type: 'file', fileName: file.name, fileData: fileData });
+        broadcast({ type: 'file', fileName: file.name, fileData: fileData, sender: myNickname });
         renderFileMessage(file.name, fileData, 'self');
       };
       reader.readAsDataURL(file);
     }
 
-    function renderFileMessage(fileName, fileData, sender) {
+    function renderFileMessage(fileName, fileData, sender, senderName) {
       const stream = document.getElementById('messageStream');
       const isSelf = sender === 'self';
       const isImage = fileData.startsWith('data:image');
       const div = document.createElement('div');
-      div.className = 'flex ' + (isSelf ? 'justify-end' : 'justify-start');
+      div.className = 'flex flex-col ' + (isSelf ? 'items-end' : 'items-start');
       
+      const nameTag = (!isSelf && senderName) ? '<span class="text-[10px] text-slate-400 mb-0.5 px-1">' + senderName + '</span>' : '';
       let content = isImage 
-        ? '<img src="' + fileData + '" class="max-w-xs rounded-lg border border-slate-200">'
+        ? '<img src="' + fileData + '" class="max-w-xs rounded-lg border border-slate-200 pointer-events-none">'
         : '<a href="' + fileData + '" download="' + fileName + '" class="underline text-xs flex items-center gap-1">📁 ' + fileName + '</a>';
 
-      div.innerHTML = '<div class="max-w-[75%] p-2 rounded-2xl ' + (isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800') + '">' + content + '</div>';
+      div.innerHTML = nameTag + '<div class="max-w-[75%] p-2 rounded-2xl ' + (isSelf ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-800') + '">' + content + '</div>';
       stream.appendChild(div);
       stream.scrollTop = stream.scrollHeight;
     }
 
     async function startCall(video) {
-      if (!conn) return alert('Connect to partner first!');
+      if (connections.length === 0) return alert('No active connection in room!');
       try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: video ? { facingMode: currentFacingMode } : false, audio: true });
         document.getElementById('videoCallOverlay').classList.remove('hidden');
         document.getElementById('localVideo').srcObject = localStream;
 
-        currentCall = peer.call(conn.peer, localStream);
+        currentCall = peer.call(connections[0].peer, localStream);
         currentCall.on('stream', function(remoteStream) {
           document.getElementById('remoteVideo').srcObject = remoteStream;
         });
@@ -445,22 +528,51 @@
 
     async function switchCallCamera() {
       if (!localStream) return;
-      currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-      localStream.getVideoTracks().forEach(function(track) { track.stop(); });
-      
-      const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
-      const newVideoTrack = newStream.getVideoTracks()[0];
-      
-      localStream.addTrack(newVideoTrack);
-      document.getElementById('localVideo').srcObject = localStream;
+      currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
 
-      const localVidEl = document.getElementById('localVideo');
-      if (currentFacingMode === 'environment') localVidEl.classList.remove('mirror-video');
-      else localVidEl.classList.add('mirror-video');
+      if (currentFacingMode === 'user') {
+        isTorchOn = false;
+        document.getElementById('btnCallFlashlight').classList.add('hidden');
+      } else {
+        document.getElementById('btnCallFlashlight').classList.remove('hidden');
+      }
 
-      if (currentCall) {
-        const sender = currentCall.peerConnection.getSenders().find(function(s) { return s.track.kind === 'video'; });
-        if (sender) sender.replaceTrack(newVideoTrack);
+      localStream.getTracks().forEach(function(track) { track.stop(); });
+
+      try {
+        const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
+        localStream = newStream;
+
+        const localVidEl = document.getElementById('localVideo');
+        localVidEl.srcObject = localStream;
+
+        if (currentFacingMode === 'environment') localVidEl.classList.remove('mirror-video');
+        else localVidEl.classList.add('mirror-video');
+
+        if (currentCall) {
+          const videoTrack = localStream.getVideoTracks()[0];
+          const sender = currentCall.peerConnection.getSenders().find(function(s) { return s.track.kind === 'video'; });
+          if (sender) sender.replaceTrack(videoTrack);
+        }
+      } catch(e) {
+        alert('Failed to switch camera.');
+      }
+    }
+
+    async function toggleTorch(stream) {
+      if (!stream) return;
+      const videoTrack = stream.getVideoTracks()[0];
+      const capabilities = videoTrack.getCapabilities ? videoTrack.getCapabilities() : {};
+
+      if (!capabilities.torch) {
+        return alert('Flashlight/Torch is not supported on this device/camera.');
+      }
+
+      isTorchOn = !isTorchOn;
+      try {
+        await videoTrack.applyConstraints({ advanced: [{ torch: isTorchOn }] });
+      } catch (e) {
+        alert('Could not toggle flashlight.');
       }
     }
 
@@ -483,15 +595,27 @@
 
     async function switchSnapCamera() {
       if (!snapStream) return;
-      currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-      snapStream.getTracks().forEach(function(track) { track.stop(); });
-      
-      snapStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
-      const videoEl = document.getElementById('captureVideo');
-      videoEl.srcObject = snapStream;
+      currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
 
-      if (currentFacingMode === 'environment') videoEl.classList.remove('mirror-video');
-      else videoEl.classList.add('mirror-video');
+      if (currentFacingMode === 'user') {
+        isTorchOn = false;
+        document.getElementById('btnSnapFlashlight').classList.add('hidden');
+      } else {
+        document.getElementById('btnSnapFlashlight').classList.remove('hidden');
+      }
+
+      snapStream.getTracks().forEach(function(track) { track.stop(); });
+
+      try {
+        snapStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
+        const videoEl = document.getElementById('captureVideo');
+        videoEl.srcObject = snapStream;
+
+        if (currentFacingMode === 'environment') videoEl.classList.remove('mirror-video');
+        else videoEl.classList.add('mirror-video');
+      } catch(e) {
+        alert('Failed to switch snapshot camera.');
+      }
     }
 
     function closeCameraModal() {
@@ -514,7 +638,7 @@
       ctx.drawImage(video, 0, 0);
       const fileData = canvas.toDataURL('image/png');
       
-      conn.send({ type: 'file', fileName: 'photo.png', fileData: fileData });
+      broadcast({ type: 'file', fileName: 'photo.png', fileData: fileData, sender: myNickname });
       renderFileMessage('photo.png', fileData, 'self');
       closeCameraModal();
     }
@@ -537,3 +661,4 @@
   </script>
 </body>
 </html>
+    
