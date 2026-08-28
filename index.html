@@ -2,59 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Private Couple Chat & Video Call</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Private Couple App</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
-    body { font-family: sans-serif; background: #121212; color: #fff; display: flex; flex-direction: column; height: 100vh; margin: 0; }
-    .container { padding: 15px; display: flex; flex-direction: column; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-    .card { background: #1e1e1e; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
-    input { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 4px; }
-    button { background: #e91e63; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; margin-top: 10px; font-weight: bold; cursor: pointer; }
-    button:disabled { background: #555; cursor: not-allowed; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0d0d0d; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
-    /* Video grid styling */
-    .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; background: #000; padding: 10px; border-radius: 8px; }
-    video { width: 100%; height: 160px; object-fit: cover; background: #222; border-radius: 6px; }
+    .app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; max-width: 100%; }
     
-    #chat-box { flex: 1; background: #1a1a1a; border-radius: 8px; padding: 10px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; min-height: 150px; }
-    .msg { margin: 5px 0; padding: 8px 12px; border-radius: 6px; max-width: 80%; }
-    .me { background: #e91e63; align-self: flex-end; }
-    .them { background: #333; align-self: flex-start; }
-    .status { font-size: 0.9em; color: #888; text-align: center; }
+    /* Header & Link setup */
+    .header { background: #1a1a1a; padding: 12px; border-bottom: 1px solid #2a2a2a; text-align: center; }
+    .status { font-size: 0.85em; color: #4caf50; margin-top: 4px; }
+    .share-box { display: flex; gap: 8px; margin-top: 8px; }
+    .share-box input { flex: 1; padding: 8px 12px; background: #262626; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 0.85em; }
+    .share-box button { background: #e91e63; border: none; color: white; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+    /* Action Toolbar (3 Options) */
+    .actions-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; background: #141414; border-bottom: 1px solid #222; }
+    .action-btn { background: #262626; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.85em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .action-btn.active { background: #e91e63; border-color: #e91e63; }
+    
+    /* Main Content Area */
+    .main-content { flex: 1; display: flex; flex-direction: column; position: relative; background: #000; overflow: hidden; }
+    
+    /* Video Fullscreen Display */
+    .video-container { flex: 1; position: relative; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; }
+    video#remote-video { width: 100%; height: 100%; object-fit: cover; }
+    video#local-video { position: absolute; top: 12px; right: 12px; width: 100px; height: 140px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: #222; z-index: 10; }
+    
+    /* Chat View */
+    .chat-container { display: flex; flex-direction: column; height: 100%; background: #121212; }
+    #chat-box { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .msg { padding: 10px 14px; border-radius: 14px; max-width: 75%; word-break: break-word; font-size: 0.95em; }
+    .me { background: #e91e63; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .them { background: #262626; align-self: flex-start; border-bottom-left-radius: 2px; }
+    
+    .chat-input-bar { display: flex; gap: 8px; padding: 10px; background: #1a1a1a; border-top: 1px solid #2a2a2a; }
+    .chat-input-bar input { flex: 1; padding: 10px 14px; background: #262626; border: 1px solid #333; color: #fff; border-radius: 20px; outline: none; }
+    .chat-input-bar button { background: #e91e63; border: none; color: white; padding: 10px 18px; border-radius: 20px; font-weight: bold; }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card" id="setup-card">
-      <h3>Private Chat & Video</h3>
-      <p class="status" id="status-text">Generating room link...</p>
-      
-      <label>Share link with partner:</label>
-      <input type="text" id="share-link" readonly onclick="this.select()">
-      <button onclick="copyLink()">Copy Link</button>
+  <div class="app-container">
+    <div class="header">
+      <p class="status" id="status-text">Initializing...</p>
+      <div class="share-box">
+        <input type="text" id="share-link" readonly onclick="this.select()">
+        <button onclick="copyLink()">Copy</button>
+      </div>
     </div>
 
-    <!-- Video Streams -->
-    <div class="video-grid">
-      <div>
-        <small style="display:block; margin-bottom:4px;">You</small>
+    <!-- 3 Action Options -->
+    <div class="actions-bar">
+      <button class="action-btn" id="btn-msg" onclick="switchView('message')" disabled>💬 Message</button>
+      <button class="action-btn" id="btn-audio" onclick="startCall(false)" disabled>📞 Voice Call</button>
+      <button class="action-btn" id="btn-video" onclick="startCall(true)" disabled>📹 Video Call</button>
+    </div>
+
+    <!-- Screen View -->
+    <div class="main-content">
+      <!-- Call Screen (Full Screen Video/Audio) -->
+      <div class="video-container" id="call-view">
+        <video id="remote-video" autoplay playsinline></video>
         <video id="local-video" autoplay muted playsinline></video>
       </div>
-      <div>
-        <small style="display:block; margin-bottom:4px;">Partner</small>
-        <video id="remote-video" autoplay playsinline></video>
+
+      <!-- Text Message Screen -->
+      <div class="chat-container hidden" id="chat-view">
+        <div id="chat-box"></div>
+        <div class="chat-input-bar">
+          <input type="text" id="msg-input" placeholder="Type a message...">
+          <button onclick="sendMessage()">Send</button>
+        </div>
       </div>
-    </div>
-    
-    <button id="call-btn" onclick="startCall()" disabled>📹 Start Video Call</button>
-
-    <!-- Text Chat -->
-    <div id="chat-box" style="margin-top: 10px;"></div>
-
-    <div style="display: flex; gap: 5px;">
-      <input type="text" id="msg-input" placeholder="Type a message..." disabled>
-      <button style="width: 80px; margin: 0;" onclick="sendMessage()" id="send-btn" disabled>Send</button>
     </div>
   </div>
 
@@ -69,10 +93,9 @@
       document.getElementById('share-link').value = shareUrl;
       document.getElementById('status-text').innerText = 'Ready! Share the link to connect.';
 
-      // Connect automatically if link contains target ID
       if (window.location.hash) {
         partnerId = window.location.hash.substring(1);
-        document.getElementById('status-text').innerText = 'Connecting to partner...';
+        document.getElementById('status-text').innerText = 'Connecting...';
         connectToPeer(partnerId);
       }
     });
@@ -83,18 +106,22 @@
       setupChat();
     });
 
-    // Handle incoming video calls
     peer.on('call', async (call) => {
       try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const isVideoCall = call.metadata && call.metadata.video;
+        localStream = await navigator.mediaDevices.getUserMedia({ video: isVideoCall, audio: true });
         document.getElementById('local-video').srcObject = localStream;
         
+        if (!isVideoCall) document.getElementById('local-video').classList.add('hidden');
+        else document.getElementById('local-video').classList.remove('hidden');
+
+        switchView('call');
         call.answer(localStream);
         call.on('stream', (remoteStream) => {
           document.getElementById('remote-video').srcObject = remoteStream;
         });
       } catch (err) {
-        alert('Camera/Microphone access denied or unavailable.');
+        alert('Permission denied or media error.');
       }
     });
 
@@ -106,28 +133,49 @@
     function setupChat() {
       conn.on('open', () => {
         document.getElementById('status-text').innerText = 'Connected!';
-        document.getElementById('msg-input').disabled = false;
-        document.getElementById('send-btn').disabled = false;
-        document.getElementById('call-btn').disabled = false;
+        document.getElementById('btn-msg').disabled = false;
+        document.getElementById('btn-audio').disabled = false;
+        document.getElementById('btn-video').disabled = false;
       });
 
       conn.on('data', (data) => {
         appendMessage(data, 'them');
+        switchView('message');
       });
     }
 
-    async function startCall() {
+    async function startCall(enableVideo) {
       if (!partnerId) return;
       try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localStream = await navigator.mediaDevices.getUserMedia({ video: enableVideo, audio: true });
         document.getElementById('local-video').srcObject = localStream;
+        
+        if (!enableVideo) document.getElementById('local-video').classList.add('hidden');
+        else document.getElementById('local-video').classList.remove('hidden');
 
-        const call = peer.call(partnerId, localStream);
+        switchView('call');
+        const call = peer.call(partnerId, localStream, { metadata: { video: enableVideo } });
         call.on('stream', (remoteStream) => {
           document.getElementById('remote-video').srcObject = remoteStream;
         });
       } catch (err) {
-        alert('Could not access camera/microphone.');
+        alert('Camera/Microphone access required.');
+      }
+    }
+
+    function switchView(view) {
+      const chatView = document.getElementById('chat-view');
+      const callView = document.getElementById('call-view');
+      const msgBtn = document.getElementById('btn-msg');
+
+      if (view === 'message') {
+        chatView.classList.remove('hidden');
+        callView.classList.add('hidden');
+        msgBtn.classList.add('active');
+      } else {
+        chatView.classList.add('hidden');
+        callView.classList.remove('hidden');
+        msgBtn.classList.remove('active');
       }
     }
 
@@ -153,7 +201,7 @@
       const copyText = document.getElementById('share-link');
       copyText.select();
       navigator.clipboard.writeText(copyText.value);
-      alert('Link copied to clipboard!');
+      alert('Link copied!');
     }
   </script>
 </body>
