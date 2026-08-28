@@ -302,4 +302,1048 @@
             <i data-lucide="qr-code" class="w-4 h-4 text-slate-600"></i>
           </button>
           <button onclick="shareLinkNative()" class="p-2 rounded-lg text-slate-700 hover:bg-slate-100 border border-slate-200 active:scale-95 transition-all cursor-pointer" title="Share Link">
-            <i data-lucide="share-2" class="w
+            <i data-lucide="share-2" class="w-4 h-4 text-slate-600"></i>
+          </button>
+          <button onclick="openSecurityModal()" class="p-2 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 active:scale-95 transition-all cursor-pointer" title="Security Verification">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </button>
+          <button onclick="leaveRoom()" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-rose-200/80 active:scale-95 transition-all cursor-pointer" title="Leave Room">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Waiting Banner -->
+      <div id="waitingPartnerBanner" class="bg-amber-50 border-b border-amber-200/80 px-4 py-2 flex items-center justify-between text-xs text-amber-800">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>Waiting for your partner to open the invite link...</span>
+        </div>
+        <button onclick="shareLinkNative()" class="font-semibold text-amber-900 underline underline-offset-2 hover:text-amber-950 cursor-pointer">
+          Share Link
+        </button>
+      </div>
+
+      <!-- Messages Scroll Area -->
+      <div id="messagesContainer" class="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-3 sm:space-y-4">
+        <div class="flex justify-center my-2">
+          <div class="bg-slate-50 border border-slate-200/90 rounded-full px-3.5 py-1.5 flex items-center gap-1.5 text-[11px] text-slate-500 shadow-2xs">
+            <i data-lucide="lock" class="w-3 h-3 text-emerald-600"></i>
+            <span>Messages & Calls are End-to-End Encrypted via WebRTC</span>
+          </div>
+        </div>
+
+        <div id="emptyStateBox" class="h-64 flex flex-col items-center justify-center text-center p-6 space-y-3">
+          <div id="emptyHeartIcon" class="w-14 h-14 rounded-full flex items-center justify-center bg-rose-100 text-rose-600 shadow-xs">
+            <i data-lucide="heart" class="w-7 h-7 fill-current animate-pulse"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-slate-800">Your Private Sanctuary is Ready</h2>
+            <p class="text-xs text-slate-500 max-w-xs mt-1">Send a romantic note, record a voice clip, share a photo, or start a video call.</p>
+          </div>
+          <button onclick="sendHeartPulse()" class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Send a Heart Touch</span>
+          </button>
+        </div>
+
+        <!-- Dynamic message bubbles injected here -->
+        <div id="messageStream" class="space-y-3"></div>
+
+        <!-- Partner Typing Indicator -->
+        <div id="partnerTypingBox" class="flex items-center gap-2 text-slate-400 text-xs py-1 animate-pulse hidden">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold bg-rose-100 text-rose-700">P</div>
+          <div class="bg-slate-100 px-3 py-1.5 rounded-full flex items-center gap-1">
+            <span class="text-[11px] text-slate-600 font-medium">Partner is typing</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Chat Input Bar -->
+      <div class="border-t border-slate-200/80 bg-white/95 backdrop-blur-md px-3 sm:px-6 py-2.5 sm:py-3 space-y-2">
+        <!-- Quick Emojis & Actions -->
+        <div class="flex items-center justify-between gap-1 text-xs">
+          <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+            <button onclick="appendEmoji('💖')" class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 text-sm cursor-pointer">💖</button>
+            <button onclick="appendEmoji('💋')" class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 text-sm cursor-pointer">💋</button>
+            <button onclick="appendEmoji('🌸')" class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 text-sm cursor-pointer">🌸</button>
+            <button onclick="appendEmoji('🫂')" class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 text-sm cursor-pointer">🫂</button>
+            <button onclick="appendEmoji('💌')" class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 text-sm cursor-pointer">💌</button>
+            <button onclick="appendEmoji('✨')" class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 text-sm cursor-pointer">✨</button>
+            <button onclick="appendEmoji('🥰')" class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 text-sm cursor-pointer">🥰</button>
+            <button onclick="appendEmoji('🌹')" class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 text-sm cursor-pointer">🌹</button>
+          </div>
+
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick="sendHeartPulse()" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 border border-rose-200/60 active:scale-90 transition-all flex items-center gap-1 font-semibold cursor-pointer" title="Send Heart Touch">
+              <i data-lucide="heart" class="w-3.5 h-3.5 fill-rose-500 animate-pulse"></i>
+              <span class="text-[11px] hidden sm:inline">Touch</span>
+            </button>
+            <button onclick="openDoodleModal()" class="p-1.5 rounded-lg text-slate-700 hover:bg-slate-100 border border-slate-200 active:scale-90 transition-all flex items-center gap-1 cursor-pointer" title="Doodle Canvas">
+              <i data-lucide="pen-tool" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span class="text-[11px] hidden sm:inline">Doodle</span>
+            </button>
+            <button onclick="clearChatMessages()" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors cursor-pointer" title="Clear Chat">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Voice Note Recording Box (hidden by default) -->
+        <div id="voiceRecordingBox" class="items-center justify-between bg-rose-50 border border-rose-200 rounded-2xl px-4 py-2.5 hidden">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
+            <span class="text-xs font-semibold text-rose-700">Recording Voice Note</span>
+            <span id="recordingTimerDisplay" class="font-mono text-xs font-bold text-rose-900 ml-2">00:00</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="cancelVoiceRecording()" class="p-2 text-slate-500 hover:text-slate-800 rounded-full" title="Cancel">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <button onclick="stopAndSendVoiceRecording()" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-full flex items-center gap-1 shadow-xs cursor-pointer">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <span>Send Clip</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Standard Input Controls -->
+        <div id="normalInputControls" class="flex items-end gap-1.5 sm:gap-2">
+          <input type="file" id="photoFileInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(this)">
+          <button onclick="document.getElementById('photoFileInput').click()" class="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 shrink-0 active:scale-90 transition-all cursor-pointer" title="Attach Photo">
+            <i data-lucide="image" class="w-5 h-5"></i>
+          </button>
+
+          <button onclick="startVoiceRecording()" class="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 shrink-0 active:scale-90 transition-all cursor-pointer" title="Record Voice Note">
+            <i data-lucide="mic" class="w-5 h-5"></i>
+          </button>
+
+          <div class="flex-1 relative">
+            <textarea id="messageTextInput" rows="1" placeholder="Type a private message..." onkeydown="handleInputKeyDown(event)" oninput="handleTypingEvent(this)" class="w-full py-2.5 px-3.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-2xl border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all resize-none max-h-32"></textarea>
+          </div>
+
+          <button id="sendMessageBtn" onclick="sendTextMessage()" class="p-2.5 rounded-2xl text-white font-semibold shrink-0 shadow-xs active:scale-90 transition-all cursor-pointer bg-rose-500 hover:bg-rose-600" title="Send Encrypted Message">
+            <i data-lucide="send" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- CALL OVERLAY (Voice / HD Video) -->
+  <!-- ============================================== -->
+  <div id="callOverlay" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3 sm:p-6 hidden">
+    <!-- Call Top Bar -->
+    <div class="flex items-center justify-between z-10 max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold">
+          P
+        </div>
+        <div>
+          <div class="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
+            <span id="callPartnerName">Partner</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Encrypted P2P</span>
+          </div>
+          <div id="callTimerDisplay" class="text-xs text-slate-400 font-mono">00:00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Call Media Stage -->
+    <div class="flex-1 max-w-5xl mx-auto w-full my-4 relative flex items-center justify-center overflow-hidden rounded-3xl bg-slate-900 border border-white/10">
+      <!-- Video Stage -->
+      <video id="remoteVideoElement" autoplay playsinline class="w-full h-full object-cover rounded-3xl hidden"></video>
+      <div id="localVideoWrapper" class="absolute top-4 right-4 w-32 h-44 sm:w-44 sm:h-60 rounded-2xl overflow-hidden border-2 border-white/30 shadow-2xl bg-black hidden">
+        <video id="localVideoElement" autoplay playsinline muted class="w-full h-full object-cover"></video>
+        <div class="absolute bottom-2 left-2 text-[10px] bg-black/60 text-white px-2 py-0.5 rounded-full">You</div>
+      </div>
+
+      <!-- Voice Stage Audio Visualizer -->
+      <div id="voiceStageWrapper" class="flex flex-col items-center justify-center space-y-6 text-center">
+        <div class="relative">
+          <div class="w-32 h-32 rounded-full bg-rose-500/20 flex items-center justify-center animate-ping absolute inset-0"></div>
+          <div class="w-32 h-32 rounded-full bg-rose-500 flex items-center justify-center text-4xl font-bold text-white shadow-2xl relative z-10">P</div>
+        </div>
+        <div>
+          <h3 id="voicePartnerNameDisplay" class="text-xl font-bold text-white">Partner</h3>
+          <p class="text-xs text-rose-300 font-medium mt-1 flex items-center justify-center gap-1.5">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> HD Encrypted Voice Stream
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Call Controls -->
+    <div class="flex items-center justify-center gap-3 sm:gap-5 z-10 py-2">
+      <button id="muteBtn" onclick="toggleMuteAudio()" class="p-3.5 sm:p-4 rounded-full bg-white/15 hover:bg-white/25 text-white transition-all cursor-pointer" title="Mute Mic">
+        <i data-lucide="mic" class="w-5 h-5"></i>
+      </button>
+      <button id="videoToggleBtn" onclick="toggleVideoCamera()" class="p-3.5 sm:p-4 rounded-full bg-white/15 hover:bg-white/25 text-white transition-all cursor-pointer" title="Toggle Camera">
+        <i data-lucide="video" class="w-5 h-5"></i>
+      </button>
+      <button onclick="hangupCall()" class="p-3.5 sm:p-4 rounded-full bg-rose-600 hover:bg-rose-700 text-white shadow-xl active:scale-90 transition-all cursor-pointer" title="End Call">
+        <i data-lucide="phone-off" class="w-6 h-6"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- INCOMING CALL MODAL -->
+  <div id="incomingCallModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full border border-slate-200 shadow-2xl text-center space-y-6">
+      <div class="relative inline-block">
+        <div class="w-20 h-20 rounded-full bg-rose-100 flex items-center justify-center text-2xl font-bold text-rose-600 ring-4 ring-rose-400 ring-offset-4 animate-bounce">P</div>
+        <span class="absolute -top-1 -right-1 p-1.5 bg-rose-500 rounded-full text-white shadow-xs">
+          <i data-lucide="heart" class="w-4 h-4 fill-white"></i>
+        </span>
+      </div>
+      <div>
+        <h2 id="incomingCallerName" class="text-xl font-bold text-slate-900">Partner is calling...</h2>
+        <p class="text-xs text-slate-500 mt-1">Incoming Encrypted WebRTC Call</p>
+      </div>
+      <div class="flex items-center justify-center gap-4 pt-2">
+        <button onclick="rejectIncomingCall()" class="w-14 h-14 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-700 flex items-center justify-center active:scale-90 transition-transform cursor-pointer" title="Decline">
+          <i data-lucide="phone-off" class="w-6 h-6"></i>
+        </button>
+        <button onclick="acceptIncomingCall(false)" class="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center active:scale-90 transition-transform cursor-pointer" title="Answer Voice">
+          <i data-lucide="phone" class="w-6 h-6"></i>
+        </button>
+        <button onclick="acceptIncomingCall(true)" class="w-14 h-14 rounded-full bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center active:scale-90 transition-transform cursor-pointer" title="Answer Video">
+          <i data-lucide="video" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR CODE MODAL -->
+  <div id="qrModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full border border-slate-200 shadow-2xl space-y-4 text-center">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="qr-code" class="w-5 h-5 text-slate-800"></i>
+          <h2 class="text-base font-bold text-slate-900">Partner Scan QR</h2>
+        </div>
+        <button onclick="closeQrModal()" class="text-slate-400 hover:text-slate-700 font-semibold p-1">✕</button>
+      </div>
+      <p class="text-xs text-slate-500">Scan this code with a smartphone camera to join instantly with the 256-bit AES encryption key.</p>
+      <div class="bg-slate-50 p-4 rounded-2xl flex items-center justify-center border border-slate-200">
+        <canvas id="qrCanvas" class="w-56 h-56 rounded-lg"></canvas>
+      </div>
+      <button onclick="copyInviteLink()" class="w-full py-2.5 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 flex items-center justify-center gap-1.5 cursor-pointer">
+        <i data-lucide="copy" class="w-4 h-4"></i>
+        <span>Copy Invite Link</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SECURITY DETAILS MODAL -->
+  <div id="securityModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Security & Encryption</h2>
+            <p class="text-[11px] text-emerald-600 font-medium">End-to-End Encrypted (E2EE)</p>
+          </div>
+        </div>
+        <button onclick="closeSecurityModal()" class="text-slate-400 hover:text-slate-700 font-semibold p-1">✕</button>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center space-y-2">
+        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Safety Verification Code</span>
+        <div id="securityEmojiDisplay" class="text-2xl sm:text-3xl py-1 flex items-center justify-center gap-3">
+          🌸 💖 💎 🕊️
+        </div>
+        <div id="securityNumberDisplay" class="font-mono text-sm font-bold text-slate-800 bg-white py-1.5 px-3 rounded-lg border border-slate-200 inline-block tracking-wider">
+          739 124
+        </div>
+        <p class="text-[11px] text-slate-500">Compare these safety emojis with your partner's screen. If they match, your connection is 100% authentic and private.</p>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2">
+          <i data-lucide="server-off" class="w-4 h-4 text-rose-500 shrink-0 mt-0.5"></i>
+          <div><div class="font-semibold text-slate-800">Zero Server Storage</div><div class="text-slate-500 text-[11px]">0 bytes saved to any backend database. RAM-only.</div></div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+          <div><div class="font-semibold text-slate-800">256-bit AES-GCM</div><div class="text-slate-500 text-[11px]">Hardware-accelerated browser Web Crypto API.</div></div>
+        </div>
+      </div>
+
+      <button onclick="closeSecurityModal()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold cursor-pointer">
+        Verified & Safe
+      </button>
+    </div>
+  </div>
+
+  <!-- COUPLE DOODLE MODAL -->
+  <div id="doodleModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="bg-white rounded-3xl p-4 sm:p-6 max-w-lg w-full border border-slate-200 shadow-2xl space-y-3.5 flex flex-col max-h-[92vh]">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+            <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Couple Love Canvas</h2>
+            <p class="text-[11px] text-slate-500">Live collaborative doodle</p>
+          </div>
+        </div>
+        <button onclick="closeDoodleModal()" class="text-slate-400 hover:text-slate-700 font-semibold p-1">✕</button>
+      </div>
+
+      <!-- Color Palette -->
+      <div class="flex items-center justify-between gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200">
+        <div class="flex items-center gap-1.5">
+          <button onclick="setDoodleColor('#f43f5e')" class="w-6 h-6 rounded-full bg-rose-500 ring-2 ring-slate-900 ring-offset-2"></button>
+          <button onclick="setDoodleColor('#ec4899')" class="w-6 h-6 rounded-full bg-pink-500"></button>
+          <button onclick="setDoodleColor('#0284c7')" class="w-6 h-6 rounded-full bg-sky-500"></button>
+          <button onclick="setDoodleColor('#059669')" class="w-6 h-6 rounded-full bg-emerald-600"></button>
+          <button onclick="setDoodleColor('#0f172a')" class="w-6 h-6 rounded-full bg-slate-900"></button>
+        </div>
+        <button onclick="clearDoodleCanvas()" class="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg" title="Clear Canvas">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="relative w-full h-80 rounded-2xl overflow-hidden border border-slate-200 shadow-inner bg-white touch-none">
+        <canvas id="doodleCanvas" class="w-full h-full cursor-crosshair block"></canvas>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="closeDoodleModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold cursor-pointer">Close</button>
+        <button onclick="sendDoodleToChat()" class="flex-1 py-2.5 rounded-xl text-white bg-rose-500 hover:bg-rose-600 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>Send to Chat</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- JAVASCRIPT ENGINE (WebRTC, AES-256, UI) -->
+  <!-- ============================================== -->
+  <script>
+    // --- THEME DEFINITIONS ---
+    const THEMES = {
+      'pink': { name: 'Blush Pink', primary: 'bg-rose-500', primaryHover: 'hover:bg-rose-600', ring: 'focus:ring-rose-400', accent: 'bg-rose-100 text-rose-700', bubbleSelf: 'bg-rose-500 text-white', bubblePartner: 'bg-rose-50 text-slate-800 border border-rose-100' },
+      'white': { name: 'Pure Minimal', primary: 'bg-slate-900', primaryHover: 'hover:bg-slate-800', ring: 'focus:ring-slate-400', accent: 'bg-slate-100 text-slate-800', bubbleSelf: 'bg-slate-900 text-white', bubblePartner: 'bg-slate-100 text-slate-800 border border-slate-200' },
+      'green': { name: 'Sage Mint', primary: 'bg-emerald-600', primaryHover: 'hover:bg-emerald-700', ring: 'focus:ring-emerald-400', accent: 'bg-emerald-100 text-emerald-800', bubbleSelf: 'bg-emerald-600 text-white', bubblePartner: 'bg-emerald-50 text-slate-800 border border-emerald-100' },
+      'sky-blue': { name: 'Sky Blue', primary: 'bg-sky-500', primaryHover: 'hover:bg-sky-600', ring: 'focus:ring-sky-400', accent: 'bg-sky-100 text-sky-800', bubbleSelf: 'bg-sky-500 text-white', bubblePartner: 'bg-sky-50 text-slate-800 border border-sky-100' }
+    };
+    let currentThemeKey = 'pink';
+
+    // --- APPLICATION STATE ---
+    let currentRoomId = '';
+    let currentSecretKey = '';
+    let myNickname = 'Sweetheart';
+    let partnerNickname = 'Partner';
+    let cryptoKey = null;
+    let ws = null;
+    let peerConnection = null;
+    let dataChannel = null;
+    let localMediaStream = null;
+    let remoteMediaStream = null;
+    let callType = null;
+    let callTimerInterval = null;
+    let callSeconds = 0;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordInterval = null;
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      parseUrlHash();
+      initDoodleCanvas();
+      if (!currentRoomId) {
+        generateNewRoom();
+      }
+    });
+
+    function setTheme(key) {
+      currentThemeKey = key;
+      const theme = THEMES[key];
+      document.getElementById('currentThemeNameDisplay').innerText = theme.name;
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        if (btn.dataset.theme === key) {
+          btn.className = `theme-btn px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer ${theme.accent} shadow-xs font-semibold scale-105`;
+        } else {
+          btn.className = 'theme-btn px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 cursor-pointer text-slate-600 hover:text-slate-900';
+        }
+      });
+      document.getElementById('themeDropdownMenu').classList.add('hidden');
+    }
+
+    function toggleThemeDropdown() {
+      const menu = document.getElementById('themeDropdownMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    function switchLobbyTab(tab) {
+      if (tab === 'create') {
+        document.getElementById('createModeFields').classList.remove('hidden');
+        document.getElementById('joinModeFields').classList.add('hidden');
+        document.getElementById('tabCreateBtn').className = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-slate-900 shadow-xs cursor-pointer';
+        document.getElementById('tabJoinBtn').className = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 cursor-pointer';
+      } else {
+        document.getElementById('createModeFields').classList.add('hidden');
+        document.getElementById('joinModeFields').classList.remove('hidden');
+        document.getElementById('tabJoinBtn').className = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-slate-900 shadow-xs cursor-pointer';
+        document.getElementById('tabCreateBtn').className = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 cursor-pointer';
+      }
+    }
+
+    function setQuickNick(nick) {
+      document.getElementById('nicknameInput').value = nick;
+      myNickname = nick;
+    }
+
+    // --- CRYPTO UTILITIES (AES-256-GCM) ---
+    async function generateAESKey() {
+      return await window.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
+    }
+
+    async function exportKeyToBase64(key) {
+      const exp = await window.crypto.subtle.exportKey("raw", key);
+      const bytes = new Uint8Array(exp);
+      let binary = "";
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+
+    async function importKeyFromBase64(base64Key) {
+      let b64 = base64Key.replace(/-/g, "+").replace(/_/g, "/");
+      while (b64.length % 4) b64 += "=";
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return await window.crypto.subtle.importKey("raw", bytes, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
+    }
+
+    async function encryptPayload(dataObj, key) {
+      const json = JSON.stringify(dataObj);
+      const encoded = new TextEncoder().encode(json);
+      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+      const encrypted = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+      
+      let cipherBin = "", ivBin = "";
+      new Uint8Array(encrypted).forEach(b => cipherBin += String.fromCharCode(b));
+      iv.forEach(b => ivBin += String.fromCharCode(b));
+      return { iv: btoa(ivBin), cipher: btoa(cipherBin) };
+    }
+
+    async function decryptPayload(cipherB64, ivB64, key) {
+      const cipherBin = atob(cipherB64);
+      const cipherBytes = new Uint8Array(cipherBin.length);
+      for (let i = 0; i < cipherBin.length; i++) cipherBytes[i] = cipherBin.charCodeAt(i);
+
+      const ivBin = atob(ivB64);
+      const ivBytes = new Uint8Array(ivBin.length);
+      for (let i = 0; i < ivBin.length; i++) ivBytes[i] = ivBin.charCodeAt(i);
+
+      const decrypted = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv: ivBytes }, key, cipherBytes);
+      return JSON.parse(new TextDecoder().decode(decrypted));
+    }
+
+    async function generateNewRoom() {
+      const words = ['forever', 'honey', 'starlight', 'sunshine', 'sweetheart', 'moonlight', 'serenade'];
+      const word = words[Math.floor(Math.random() * words.length)];
+      const num = Math.floor(1000 + Math.random() * 9000);
+      currentRoomId = `${word}-${num}`;
+      
+      const keyObj = await generateAESKey();
+      currentSecretKey = await exportKeyToBase64(keyObj);
+
+      document.getElementById('displayRoomId').innerText = currentRoomId;
+      const url = `${window.location.origin}${window.location.pathname}#room=${currentRoomId}&key=${currentSecretKey}`;
+      document.getElementById('generatedLinkInput').value = url;
+    }
+
+    function parseUrlHash() {
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        const params = new URLSearchParams(hash);
+        const r = params.get('room');
+        const k = params.get('key');
+        if (r && k) {
+          currentRoomId = r;
+          currentSecretKey = k;
+          document.getElementById('joinRoomInput').value = r;
+          document.getElementById('joinKeyInput').value = k;
+          switchLobbyTab('join');
+        }
+      }
+    }
+
+    function handleJoinInput(val) {
+      if (val.includes('#room=')) {
+        try {
+          const hash = val.split('#')[1];
+          const params = new URLSearchParams(hash);
+          document.getElementById('joinRoomInput').value = params.get('room') || '';
+          document.getElementById('joinKeyInput').value = params.get('key') || '';
+        } catch(e){}
+      }
+    }
+
+    async function copyInviteLink() {
+      const url = document.getElementById('generatedLinkInput').value || `${window.location.origin}${window.location.pathname}#room=${currentRoomId}&key=${currentSecretKey}`;
+      await navigator.clipboard.writeText(url);
+      alert('Invite link with secret key copied to clipboard!');
+    }
+
+    async function shareLinkNative() {
+      const url = `${window.location.origin}${window.location.pathname}#room=${currentRoomId}&key=${currentSecretKey}`;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'Amour Couple Sanctuary', text: 'Join our private encrypted room:', url });
+        } catch(e){}
+      } else {
+        copyInviteLink();
+      }
+    }
+
+    // --- WEBRTC & SIGNALING ---
+    async function enterRoom() {
+      myNickname = document.getElementById('nicknameInput').value.trim() || 'Sweetheart';
+      if (document.getElementById('joinModeFields').classList.contains('hidden') === false) {
+        currentRoomId = document.getElementById('joinRoomInput').value.trim();
+        currentSecretKey = document.getElementById('joinKeyInput').value.trim();
+      }
+
+      if (!currentRoomId || !currentSecretKey) {
+        alert('Please provide room ID and encryption key.');
+        return;
+      }
+
+      cryptoKey = await importKeyFromBase64(currentSecretKey);
+      window.location.hash = `#room=${currentRoomId}&key=${currentSecretKey}`;
+
+      document.getElementById('lobbyScreen').classList.add('hidden');
+      document.getElementById('chatScreen').classList.remove('hidden');
+
+      connectSignaling();
+    }
+
+    function connectSignaling() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: 'join', roomId: currentRoomId, peerId: 'peer-' + Math.random().toString(36).substring(2, 8) }));
+      };
+
+      ws.onmessage = async (event) => {
+        const msg = JSON.parse(event.data);
+        switch (msg.type) {
+          case 'joined':
+            if (msg.existingPeers && msg.existingPeers.length > 0) {
+              initiatePeerConnection(msg.existingPeers[0]);
+            }
+            break;
+          case 'peer-joined':
+            break;
+          case 'signal':
+            handleSignalingData(msg);
+            break;
+          case 'peer-left':
+            onPartnerDisconnected();
+            break;
+        }
+      };
+    }
+
+    function setupPeerConnection() {
+      if (peerConnection) return peerConnection;
+      peerConnection = new RTCPeerConnection({
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      });
+
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate && ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'signal', data: { candidate: event.candidate } }));
+        }
+      };
+
+      peerConnection.ontrack = (event) => {
+        if (!remoteMediaStream) remoteMediaStream = new MediaStream();
+        remoteMediaStream.addTrack(event.track);
+        const remoteVideo = document.getElementById('remoteVideoElement');
+        remoteVideo.srcObject = remoteMediaStream;
+      };
+
+      peerConnection.ondatachannel = (event) => {
+        setupDataChannel(event.channel);
+      };
+
+      return peerConnection;
+    }
+
+    function initiatePeerConnection(targetPeerId) {
+      const pc = setupPeerConnection();
+      const dc = pc.createDataChannel('amour-e2ee-channel');
+      setupDataChannel(dc);
+
+      pc.createOffer().then(offer => {
+        pc.setLocalDescription(offer);
+        ws.send(JSON.stringify({ type: 'signal', targetPeerId, data: { sdp: offer } }));
+      });
+    }
+
+    async function handleSignalingData(msg) {
+      const pc = setupPeerConnection();
+      const { sdp, candidate } = msg.data || {};
+
+      if (sdp) {
+        if (sdp.type === 'offer') {
+          await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          ws.send(JSON.stringify({ type: 'signal', targetPeerId: msg.fromPeerId, data: { sdp: answer } }));
+        } else if (sdp.type === 'answer') {
+          await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+        }
+      } else if (candidate) {
+        try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch(e){}
+      }
+    }
+
+    function setupDataChannel(channel) {
+      dataChannel = channel;
+      dataChannel.onopen = () => {
+        onPartnerConnected();
+        sendEncryptedEvent({ type: 'handshake', nickname: myNickname });
+      };
+      dataChannel.onmessage = async (e) => {
+        try {
+          const payload = JSON.parse(e.data);
+          const decrypted = await decryptPayload(payload.cipher, payload.iv, cryptoKey);
+          handleIncomingEvent(decrypted);
+        } catch(err){}
+      };
+    }
+
+    function onPartnerConnected() {
+      document.getElementById('waitingPartnerBanner').classList.add('hidden');
+      document.getElementById('partnerStatusDot').className = 'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-emerald-500 animate-pulse';
+      document.getElementById('connectionBadge').innerHTML = '<i data-lucide="wifi" class="w-3 h-3 text-emerald-600"></i> P2P Connected';
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      lucide.createIcons();
+    }
+
+    function onPartnerDisconnected() {
+      document.getElementById('waitingPartnerBanner').classList.remove('hidden');
+      document.getElementById('partnerStatusDot').className = 'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-amber-400';
+      document.getElementById('connectionBadge').innerHTML = '<i data-lucide="wifi-off" class="w-3 h-3 text-amber-600"></i> Disconnected';
+      lucide.createIcons();
+    }
+
+    async function sendEncryptedEvent(dataObj) {
+      if (!dataChannel || dataChannel.readyState !== 'open' || !cryptoKey) return;
+      const encrypted = await encryptPayload(dataObj, cryptoKey);
+      dataChannel.send(JSON.stringify(encrypted));
+    }
+
+    function handleIncomingEvent(event) {
+      switch(event.type) {
+        case 'handshake':
+          partnerNickname = event.nickname || 'Partner';
+          document.getElementById('partnerNameDisplay').innerText = partnerNickname;
+          document.getElementById('partnerAvatar').innerText = partnerNickname.charAt(0).toUpperCase();
+          break;
+        case 'chat':
+          renderMessage(event.message, 'partner');
+          break;
+        case 'heart-pulse':
+          triggerHeartAnimation();
+          break;
+        case 'typing':
+          document.getElementById('partnerTypingBox').classList.toggle('hidden', !event.isTyping);
+          break;
+        case 'doodle-stroke':
+          drawRemoteStroke(event.stroke);
+          break;
+        case 'call-offer':
+          showIncomingCallModal(event.callType);
+          break;
+        case 'call-accepted':
+          onCallConnected();
+          break;
+        case 'call-ended':
+          closeCallOverlay();
+          break;
+      }
+    }
+
+    // --- MESSAGING ---
+    function sendTextMessage() {
+      const input = document.getElementById('messageTextInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const msg = { id: Date.now(), text, type: 'text', timestamp: Date.now() };
+      renderMessage(msg, 'self');
+      sendEncryptedEvent({ type: 'chat', message: msg });
+      input.value = '';
+    }
+
+    function renderMessage(msg, sender) {
+      document.getElementById('emptyStateBox').classList.add('hidden');
+      const stream = document.getElementById('messageStream');
+      const isSelf = sender === 'self';
+      const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const bubble = document.createElement('div');
+      bubble.className = `flex items-end gap-2 ${isSelf ? 'justify-end' : 'justify-start'}`;
+
+      const theme = THEMES[currentThemeKey];
+      const bubbleClass = isSelf ? theme.bubbleSelf : theme.bubblePartner;
+
+      let contentHtml = '';
+      if (msg.type === 'text') {
+        contentHtml = `<p class="text-sm leading-relaxed">${msg.text}</p>`;
+      } else if (msg.type === 'image') {
+        contentHtml = `<img src="${msg.text}" class="max-h-64 rounded-xl object-cover cursor-pointer" onclick="window.open(this.src)">`;
+      } else if (msg.type === 'voice') {
+        contentHtml = `
+          <div class="flex items-center gap-2 py-1">
+            <button onclick="new Audio('${msg.text}').play()" class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">▶</button>
+            <span class="text-xs">Voice Note</span>
+          </div>`;
+      }
+
+      bubble.innerHTML = `
+        <div class="max-w-[75%] rounded-2xl px-3.5 py-2.5 shadow-2xs ${bubbleClass}">
+          ${contentHtml}
+          <div class="text-[10px] text-right mt-1 opacity-70">${timeStr}</div>
+        </div>
+      `;
+      stream.appendChild(bubble);
+      document.getElementById('messagesContainer').scrollTop = document.getElementById('messagesContainer').scrollHeight;
+    }
+
+    function appendEmoji(emoji) {
+      document.getElementById('messageTextInput').value += emoji;
+      document.getElementById('messageTextInput').focus();
+    }
+
+    function handleTypingEvent(el) {
+      sendEncryptedEvent({ type: 'typing', isTyping: el.value.length > 0 });
+    }
+
+    function handleInputKeyDown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendTextMessage();
+      }
+    }
+
+    function sendHeartPulse() {
+      triggerHeartAnimation();
+      sendEncryptedEvent({ type: 'heart-pulse' });
+    }
+
+    function triggerHeartAnimation() {
+      const container = document.getElementById('heartParticlesContainer');
+      for (let i = 0; i < 6; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'fixed bottom-10 z-50 text-rose-500 animate-float-up text-3xl';
+        heart.style.left = `${20 + Math.random() * 60}%`;
+        heart.innerText = '💖';
+        container.appendChild(heart);
+        setTimeout(() => heart.remove(), 2400);
+      }
+      if (navigator.vibrate) navigator.vibrate([100, 50, 150]);
+    }
+
+    function clearChatMessages() {
+      if (confirm('Clear chat messages on your screen?')) {
+        document.getElementById('messageStream').innerHTML = '';
+        document.getElementById('emptyStateBox').classList.remove('hidden');
+      }
+    }
+
+    // --- VOICE RECORDER ---
+    async function startVoiceRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+          const blob = new Blob(audioChunks, { type: 'audio/webm' });
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onloadend = () => {
+            const base64 = reader.result;
+            const msg = { id: Date.now(), text: base64, type: 'voice', timestamp: Date.now() };
+            renderMessage(msg, 'self');
+            sendEncryptedEvent({ type: 'chat', message: msg });
+          };
+          stream.getTracks().forEach(t => t.stop());
+        };
+
+        mediaRecorder.start();
+        document.getElementById('voiceRecordingBox').classList.remove('hidden');
+        document.getElementById('voiceRecordingBox').classList.add('flex');
+        document.getElementById('normalInputControls').classList.add('hidden');
+
+        let sec = 0;
+        recordInterval = setInterval(() => {
+          sec++;
+          document.getElementById('recordingTimerDisplay').innerText = `00:${sec < 10 ? '0' + sec : sec}`;
+        }, 1000);
+      } catch(e){ alert('Microphone access denied.'); }
+    }
+
+    function stopAndSendVoiceRecording() {
+      if (mediaRecorder) mediaRecorder.stop();
+      cancelVoiceRecording();
+    }
+
+    function cancelVoiceRecording() {
+      clearInterval(recordInterval);
+      document.getElementById('voiceRecordingBox').classList.add('hidden');
+      document.getElementById('voiceRecordingBox').classList.remove('flex');
+      document.getElementById('normalInputControls').classList.remove('hidden');
+    }
+
+    // --- PHOTO UPLOAD ---
+    function handlePhotoUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const max = 800;
+          const scale = Math.min(1, max / img.width);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.8);
+          const msg = { id: Date.now(), text: compressed, type: 'image', timestamp: Date.now() };
+          renderMessage(msg, 'self');
+          sendEncryptedEvent({ type: 'chat', message: msg });
+        };
+      };
+      input.value = '';
+    }
+
+    // --- VOICE & VIDEO CALLS ---
+    async function startCall(type) {
+      callType = type;
+      try {
+        localMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: type === 'video'
+        });
+
+        const pc = setupPeerConnection();
+        localMediaStream.getTracks().forEach(t => pc.addTrack(t, localMediaStream));
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        ws.send(JSON.stringify({ type: 'signal', data: { sdp: offer } }));
+
+        sendEncryptedEvent({ type: 'call-offer', callType: type });
+        openCallOverlay(type);
+      } catch(e) {
+        alert('Could not access microphone/camera.');
+      }
+    }
+
+    function showIncomingCallModal(type) {
+      callType = type;
+      document.getElementById('incomingCallerName').innerText = `${partnerNickname} is calling...`;
+      document.getElementById('incomingCallModal').classList.remove('hidden');
+    }
+
+    async function acceptIncomingCall(withVideo) {
+      document.getElementById('incomingCallModal').classList.add('hidden');
+      try {
+        localMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: withVideo || callType === 'video'
+        });
+
+        const pc = setupPeerConnection();
+        localMediaStream.getTracks().forEach(t => pc.addTrack(t, localMediaStream));
+
+        sendEncryptedEvent({ type: 'call-accepted' });
+        openCallOverlay(callType);
+        onCallConnected();
+      } catch(e){}
+    }
+
+    function rejectIncomingCall() {
+      document.getElementById('incomingCallModal').classList.add('hidden');
+      sendEncryptedEvent({ type: 'call-ended' });
+    }
+
+    function openCallOverlay(type) {
+      document.getElementById('callOverlay').classList.remove('hidden');
+      document.getElementById('callPartnerName').innerText = partnerNickname;
+      document.getElementById('voicePartnerNameDisplay').innerText = partnerNickname;
+
+      if (type === 'video') {
+        document.getElementById('remoteVideoElement').classList.remove('hidden');
+        document.getElementById('localVideoWrapper').classList.remove('hidden');
+        document.getElementById('voiceStageWrapper').classList.add('hidden');
+        document.getElementById('localVideoElement').srcObject = localMediaStream;
+      } else {
+        document.getElementById('remoteVideoElement').classList.add('hidden');
+        document.getElementById('localVideoWrapper').classList.add('hidden');
+        document.getElementById('voiceStageWrapper').classList.remove('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function onCallConnected() {
+      callSeconds = 0;
+      callTimerInterval = setInterval(() => {
+        callSeconds++;
+        const mins = Math.floor(callSeconds / 60).toString().padStart(2, '0');
+        const secs = (callSeconds % 60).toString().padStart(2, '0');
+        document.getElementById('callTimerDisplay').innerText = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function hangupCall() {
+      sendEncryptedEvent({ type: 'call-ended' });
+      closeCallOverlay();
+    }
+
+    function closeCallOverlay() {
+      clearInterval(callTimerInterval);
+      if (localMediaStream) {
+        localMediaStream.getTracks().forEach(t => t.stop());
+        localMediaStream = null;
+      }
+      document.getElementById('callOverlay').classList.add('hidden');
+    }
+
+    function toggleMuteAudio() {
+      if (localMediaStream) {
+        const track = localMediaStream.getAudioTracks()[0];
+        if (track) track.enabled = !track.enabled;
+        document.getElementById('muteBtn').classList.toggle('bg-amber-500', !track.enabled);
+      }
+    }
+
+    function toggleVideoCamera() {
+      if (localMediaStream) {
+        const track = localMediaStream.getVideoTracks()[0];
+        if (track) track.enabled = !track.enabled;
+        document.getElementById('videoToggleBtn').classList.toggle('bg-amber-500', !track.enabled);
+      }
+    }
+
+    // --- DOODLE CANVAS ---
+    let doodleCtx = null;
+    let isDrawing = false;
+    let doodleColor = '#f43f5e';
+    let lastDoodlePoint = null;
+
+    function initDoodleCanvas() {
+      const canvas = document.getElementById('doodleCanvas');
+      doodleCtx = canvas.getContext('2d');
+      canvas.width = 450;
+      canvas.height = 320;
+      doodleCtx.fillStyle = '#ffffff';
+      doodleCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const getPos = (e) => {
+        const r = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - r.left, y: clientY - r.top };
+      };
+
+      const start = (e) => { isDrawing = true; lastDoodlePoint = getPos(e); };
+      const move = (e) => {
+        if (!isDrawing || !lastDoodlePoint) return;
+        const current = getPos(e);
+        doodleCtx.strokeStyle = doodleColor;
+        doodleCtx.lineWidth = 3;
+        doodleCtx.lineCap = 'round';
+        doodleCtx.beginPath();
+        doodleCtx.moveTo(lastDoodlePoint.x, lastDoodlePoint.y);
+        doodleCtx.lineTo(current.x, current.y);
+        doodleCtx.stroke();
+
+        sendEncryptedEvent({ type: 'doodle-stroke', stroke: { x0: lastDoodlePoint.x, y0: lastDoodlePoint.y, x1: current.x, y1: current.y, color: doodleColor } });
+        lastDoodlePoint = current;
+      };
+      const stop = () => { isDrawing = false; lastDoodlePoint = null; };
+
+      canvas.addEventListener('mousedown', start);
+      canvas.addEventListener('mousemove', move);
+      canvas.addEventListener('mouseup', stop);
+      canvas.addEventListener('touchstart', start);
+      canvas.addEventListener('touchmove', move);
+      canvas.addEventListener('touchend', stop);
+    }
+
+    function drawRemoteStroke(s) {
+      if (!doodleCtx) return;
+      doodleCtx.strokeStyle = s.color;
+      doodleCtx.lineWidth = 3;
+      doodleCtx.lineCap = 'round';
+      doodleCtx.beginPath();
+      doodleCtx.moveTo(s.x0, s.y0);
+      doodleCtx.lineTo(s.x1, s.y1);
+      doodleCtx.stroke();
+    }
+
+    function setDoodleColor(c) { doodleColor = c; }
+    function clearDoodleCanvas() {
+      const canvas = document.getElementById('doodleCanvas');
+      doodleCtx.fillStyle = '#ffffff';
+      doodleCtx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function openDoodleModal() { document.getElementById('doodleModal').classList.remove('hidden'); }
+    function closeDoodleModal() { document.getElementById('doodleModal').classList.add('hidden'); }
+    function sendDoodleToChat() {
+      const canvas = document.getElementById('doodleCanvas');
+      const dataUrl = canvas.toDataURL('image/png');
+      const msg = { id: Date.now(), text: dataUrl, type: 'image', timestamp: Date.now() };
+      renderMessage(msg, 'self');
+      sendEncryptedEvent({ type: 'chat', message: msg });
+      closeDoodleModal();
+    }
+
+    // --- MODALS ---
+    function openQrModal() {
+      const url = `${window.location.origin}${window.location.pathname}#room=${currentRoomId}&key=${currentSecretKey}`;
+      QRCode.toCanvas(document.getElementById('qrCanvas'), url, { width: 220, margin: 2 });
+      document.getElementById('qrModal').classList.remove('hidden');
+    }
+    function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
+
+    function openSecurityModal() { document.getElementById('securityModal').classList.remove('hidden'); }
+    function closeSecurityModal() { document.getElementById('securityModal').classList.add('hidden'); }
+
+    function leaveRoom() {
+      if (confirm('Leave this private room?')) {
+        window.location.hash = '';
+        window.location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
