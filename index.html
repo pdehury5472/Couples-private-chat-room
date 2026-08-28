@@ -9,37 +9,37 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; height: 100%; overflow: hidden; background: #0d0d0d; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
-    .app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; max-width: 100%; }
+    .app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
     
-    /* Header & Link setup */
-    .header { background: #1a1a1a; padding: 12px; border-bottom: 1px solid #2a2a2a; text-align: center; }
-    .status { font-size: 0.85em; color: #4caf50; margin-top: 4px; }
-    .share-box { display: flex; gap: 8px; margin-top: 8px; }
-    .share-box input { flex: 1; padding: 8px 12px; background: #262626; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 0.85em; }
-    .share-box button { background: #e91e63; border: none; color: white; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    /* Header */
+    .header { background: #1a1a1a; padding: 10px 12px; border-bottom: 1px solid #2a2a2a; text-align: center; }
+    .status { font-size: 0.85em; color: #4caf50; margin-bottom: 4px; }
+    .share-box { display: flex; gap: 8px; }
+    .share-box input { flex: 1; padding: 8px; background: #262626; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 0.85em; }
+    .share-box button { background: #e91e63; border: none; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-    /* Action Toolbar (3 Options) */
+    /* Action Buttons (3 Options) */
     .actions-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; background: #141414; border-bottom: 1px solid #222; }
-    .action-btn { background: #262626; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.85em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .action-btn { background: #262626; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.85em; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .action-btn.active { background: #e91e63; border-color: #e91e63; }
     
     /* Main Content Area */
-    .main-content { flex: 1; display: flex; flex-direction: column; position: relative; background: #000; overflow: hidden; }
+    .main-content { flex: 1; position: relative; width: 100%; height: 100%; overflow: hidden; }
     
-    /* Video Fullscreen Display */
-    .video-container { flex: 1; position: relative; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; }
+    /* Video Screen */
+    .video-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #000; display: flex; align-items: center; justify-content: center; }
     video#remote-video { width: 100%; height: 100%; object-fit: cover; }
     video#local-video { position: absolute; top: 12px; right: 12px; width: 100px; height: 140px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: #222; z-index: 10; }
     
-    /* Chat View */
-    .chat-container { display: flex; flex-direction: column; height: 100%; background: #121212; }
+    /* Chat Screen */
+    .chat-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; flex-direction: column; background: #121212; z-index: 20; }
     #chat-box { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     .msg { padding: 10px 14px; border-radius: 14px; max-width: 75%; word-break: break-word; font-size: 0.95em; }
     .me { background: #e91e63; align-self: flex-end; border-bottom-right-radius: 2px; }
     .them { background: #262626; align-self: flex-start; border-bottom-left-radius: 2px; }
     
-    .chat-input-bar { display: flex; gap: 8px; padding: 10px; background: #1a1a1a; border-top: 1px solid #2a2a2a; }
+    .chat-input-bar { display: flex; gap: 8px; padding: 12px; background: #1a1a1a; border-top: 1px solid #2a2a2a; }
     .chat-input-bar input { flex: 1; padding: 10px 14px; background: #262626; border: 1px solid #333; color: #fff; border-radius: 20px; outline: none; }
     .chat-input-bar button { background: #e91e63; border: none; color: white; padding: 10px 18px; border-radius: 20px; font-weight: bold; }
 
@@ -63,15 +63,15 @@
       <button class="action-btn" id="btn-video" onclick="startCall(true)" disabled>📹 Video Call</button>
     </div>
 
-    <!-- Screen View -->
+    <!-- Main Screen View -->
     <div class="main-content">
-      <!-- Call Screen (Full Screen Video/Audio) -->
+      <!-- Call View -->
       <div class="video-container" id="call-view">
         <video id="remote-video" autoplay playsinline></video>
         <video id="local-video" autoplay muted playsinline></video>
       </div>
 
-      <!-- Text Message Screen -->
+      <!-- Chat View (Opens by default when clicked) -->
       <div class="chat-container hidden" id="chat-view">
         <div id="chat-box"></div>
         <div class="chat-input-bar">
@@ -136,6 +136,9 @@
         document.getElementById('btn-msg').disabled = false;
         document.getElementById('btn-audio').disabled = false;
         document.getElementById('btn-video').disabled = false;
+        
+        // Auto switch to message view once connected
+        switchView('message');
       });
 
       conn.on('data', (data) => {
@@ -167,11 +170,15 @@
       const chatView = document.getElementById('chat-view');
       const callView = document.getElementById('call-view');
       const msgBtn = document.getElementById('btn-msg');
+      const audioBtn = document.getElementById('btn-audio');
+      const videoBtn = document.getElementById('btn-video');
 
       if (view === 'message') {
         chatView.classList.remove('hidden');
         callView.classList.add('hidden');
         msgBtn.classList.add('active');
+        audioBtn.classList.remove('active');
+        videoBtn.classList.remove('active');
       } else {
         chatView.classList.add('hidden');
         callView.classList.remove('hidden');
